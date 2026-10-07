@@ -1,6 +1,6 @@
-# Day 1 report: statement ingestion (Zunairah)
+# Day 1 report: statement ingestion
 
-Generated 2026-10-07 by `python -m tests.ingestion.test_layouts` (language-model policy: `never`; model consulted on 0 of 15 layouts).
+Generated 2026-10-07 by `python -m tests.ingestion.test_layouts` (language-model policy: `always`; model consulted on 15 of 15 layouts).
 
 ## What was built (`backend/app/ingestion`)
 
