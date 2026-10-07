@@ -303,10 +303,11 @@ def detect_date_order(values: Iterable[object]) -> Tuple[str, str]:
     """Decide DD/MM vs MM/DD from the evidence in a whole date column.
 
     A first part above 12 proves day-first; a second part above 12 proves
-    month-first. With no evidence we assume day-first (Indian statements) and
-    say so: status is 'assumed'. Contradictory evidence gives 'conflict'.
+    month-first. ISO (2026-10-06) and month-name dates carry their own order.
+    With no evidence we assume day-first (Indian statements) and say so:
+    status is 'assumed'. Contradictory evidence gives 'conflict'.
     """
-    dmy = mdy = 0
+    dmy = mdy = ambiguous = unambiguous = 0
     for v in values:
         s = clean_cell(v)
         if not s:
@@ -314,17 +315,23 @@ def detect_date_order(values: Iterable[object]) -> Tuple[str, str]:
         date_text, _ = _split_time(s)
         m = _NUM_DATE_RE.match(date_text)
         if not m or len(m.group(1)) == 4:
+            if _parse_date_part(date_text, "dmy") is not None:
+                unambiguous += 1
             continue
         a, b = int(m.group(1)), int(m.group(2))
         if a > 12 >= b:
             dmy += 1
         elif b > 12 >= a:
             mdy += 1
+        else:
+            ambiguous += 1
     if dmy and mdy:
         return "dmy", "conflict"
     if mdy:
         return "mdy", "certain"
     if dmy:
+        return "dmy", "certain"
+    if unambiguous and not ambiguous:
         return "dmy", "certain"
     return "dmy", "assumed"
 
