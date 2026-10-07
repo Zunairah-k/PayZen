@@ -1,0 +1,682 @@
+[
+  {
+    "kind": "credit",
+    "name": "Arjun Verma",
+    "upi": "arjun48@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-01T08:29:39",
+    "ref": "318384251354",
+    "ref_in_narration": true,
+    "balance": 90300.0
+  },
+  {
+    "kind": "credit",
+    "name": "Pooja Rao",
+    "upi": "pooja51@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-01T09:14:43",
+    "ref": "249027874296",
+    "ref_in_narration": true,
+    "balance": 90600.0
+  },
+  {
+    "kind": "credit",
+    "name": "Karthik Sharma",
+    "upi": "karthik40@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-01T09:46:31",
+    "ref": "382278248963",
+    "ref_in_narration": false,
+    "balance": 90750.0
+  },
+  {
+    "kind": "credit",
+    "name": "Imran Gupta",
+    "upi": "imran50@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-01T10:09:14",
+    "ref": "823166587603",
+    "ref_in_narration": false,
+    "balance": 90900.0
+  },
+  {
+    "kind": "credit",
+    "name": "Arjun Rao",
+    "upi": "arjun37@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-01T10:24:00",
+    "ref": "847468723430",
+    "ref_in_narration": true,
+    "balance": 91050.0
+  },
+  {
+    "kind": "credit",
+    "name": "Vivaan Rao",
+    "upi": "vivaan41@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-01T12:56:28",
+    "ref": "579965075273",
+    "ref_in_narration": true,
+    "balance": 91200.0
+  },
+  {
+    "kind": "debit",
+    "name": "Stationery Point",
+    "upi": "",
+    "amount": 1200.0,
+    "ts": "2026-10-01T13:38:09",
+    "ref": "324998569847",
+    "ref_in_narration": true,
+    "balance": 90000.0
+  },
+  {
+    "kind": "debit",
+    "name": "Trophy Mart",
+    "upi": "",
+    "amount": 4500.0,
+    "ts": "2026-10-01T15:32:14",
+    "ref": "284700766177",
+    "ref_in_narration": true,
+    "balance": 85500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Lakshmi Reddy",
+    "upi": "lakshmi24@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-01T18:53:09",
+    "ref": "948467737826",
+    "ref_in_narration": true,
+    "balance": 85800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Fatima Sharma",
+    "upi": "fatima75@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-01T21:07:09",
+    "ref": "469166978480",
+    "ref_in_narration": true,
+    "balance": 86100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aditya Verma",
+    "upi": "aditya27@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-02T08:16:24",
+    "ref": "737556464170",
+    "ref_in_narration": true,
+    "balance": 86250.0
+  },
+  {
+    "kind": "credit",
+    "name": "Karthik Patel",
+    "upi": "karthik62@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-02T10:11:05",
+    "ref": "893792374740",
+    "ref_in_narration": false,
+    "balance": 86550.0
+  },
+  {
+    "kind": "credit",
+    "name": "Rohan Sharma",
+    "upi": "rohan47@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-02T14:42:24",
+    "ref": "499468044369",
+    "ref_in_narration": true,
+    "balance": 86850.0
+  },
+  {
+    "kind": "debit",
+    "name": "Stage Rentals",
+    "upi": "",
+    "amount": 5800.0,
+    "ts": "2026-10-02T17:20:01",
+    "ref": "440268117758",
+    "ref_in_narration": true,
+    "balance": 81050.0
+  },
+  {
+    "kind": "credit",
+    "name": "Faizan Khan",
+    "upi": "faizan15@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-02T18:15:42",
+    "ref": "358692322602",
+    "ref_in_narration": true,
+    "balance": 81200.0
+  },
+  {
+    "kind": "credit",
+    "name": "Harsha Reddy",
+    "upi": "harsha80@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-02T19:55:30",
+    "ref": "943487347143",
+    "ref_in_narration": true,
+    "balance": 81500.0
+  },
+  {
+    "kind": "debit",
+    "name": "Catering Hub",
+    "upi": "",
+    "amount": 5700.0,
+    "ts": "2026-10-02T20:57:38",
+    "ref": "242284210205",
+    "ref_in_narration": true,
+    "balance": 75800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sai Reddy",
+    "upi": "sai86@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-02T21:04:17",
+    "ref": "858404499727",
+    "ref_in_narration": true,
+    "balance": 76100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Isha Das",
+    "upi": "isha79@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T08:03:37",
+    "ref": "988208121913",
+    "ref_in_narration": true,
+    "balance": 76400.0
+  },
+  {
+    "kind": "credit",
+    "name": "Manoj Sharma",
+    "upi": "manoj25@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-03T09:47:34",
+    "ref": "433749894134",
+    "ref_in_narration": true,
+    "balance": 76900.0
+  },
+  {
+    "kind": "credit",
+    "name": "Naveen Iyer",
+    "upi": "naveen69@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T10:38:38",
+    "ref": "324190496631",
+    "ref_in_narration": true,
+    "balance": 77200.0
+  },
+  {
+    "kind": "credit",
+    "name": "Nikhil Das",
+    "upi": "nikhil16@examplebank",
+    "amount": 600.0,
+    "ts": "2026-10-03T11:41:04",
+    "ref": "203309232719",
+    "ref_in_narration": false,
+    "balance": 77800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ayesha Verma",
+    "upi": "ayesha98@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T14:42:41",
+    "ref": "778713315098",
+    "ref_in_narration": true,
+    "balance": 78100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sai Iyer",
+    "upi": "sai80@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T15:56:44",
+    "ref": "910932480861",
+    "ref_in_narration": true,
+    "balance": 78400.0
+  },
+  {
+    "kind": "credit",
+    "name": "Diya Rao",
+    "upi": "diya36@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T18:05:10",
+    "ref": "528120679740",
+    "ref_in_narration": true,
+    "balance": 78700.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sana Sharma",
+    "upi": "sana23@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T18:57:53",
+    "ref": "926284987769",
+    "ref_in_narration": true,
+    "balance": 79000.0
+  },
+  {
+    "kind": "credit",
+    "name": "Pooja Patel",
+    "upi": "pooja83@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-03T19:18:01",
+    "ref": "840909743953",
+    "ref_in_narration": true,
+    "balance": 79300.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sneha Iyer",
+    "upi": "sneha33@examplebank",
+    "amount": 600.0,
+    "ts": "2026-10-03T21:30:07",
+    "ref": "367190229413",
+    "ref_in_narration": true,
+    "balance": 79900.0
+  },
+  {
+    "kind": "credit",
+    "name": "Swathi Das",
+    "upi": "swathi93@examplebank",
+    "amount": 600.0,
+    "ts": "2026-10-04T08:08:32",
+    "ref": "717187026217",
+    "ref_in_narration": false,
+    "balance": 80500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Meera Iyer",
+    "upi": "meera81@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T08:16:34",
+    "ref": "375496513709",
+    "ref_in_narration": false,
+    "balance": 80800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ayesha Patel",
+    "upi": "ayesha46@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-04T09:43:14",
+    "ref": "693618324210",
+    "ref_in_narration": true,
+    "balance": 81300.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aarav Sharma",
+    "upi": "aarav78@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T10:17:29",
+    "ref": "517810801326",
+    "ref_in_narration": true,
+    "balance": 81600.0
+  },
+  {
+    "kind": "credit",
+    "name": "Priya Reddy",
+    "upi": "priya41@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-04T11:06:06",
+    "ref": "856670106513",
+    "ref_in_narration": true,
+    "balance": 82100.0
+  },
+  {
+    "kind": "debit",
+    "name": "Print Shop",
+    "upi": "",
+    "amount": 3600.0,
+    "ts": "2026-10-04T11:54:23",
+    "ref": "358506431713",
+    "ref_in_narration": true,
+    "balance": 78500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ishaan Gupta",
+    "upi": "ishaan72@examplebank",
+    "amount": 600.0,
+    "ts": "2026-10-04T13:26:21",
+    "ref": "712567468071",
+    "ref_in_narration": true,
+    "balance": 79100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Swathi Nair",
+    "upi": "swathi65@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T13:42:43",
+    "ref": "827298069901",
+    "ref_in_narration": true,
+    "balance": 79400.0
+  },
+  {
+    "kind": "debit",
+    "name": "Sound Hire Co",
+    "upi": "",
+    "amount": 1600.0,
+    "ts": "2026-10-04T15:23:42",
+    "ref": "892617964053",
+    "ref_in_narration": true,
+    "balance": 77800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Diya Iyer",
+    "upi": "diya15@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T17:54:49",
+    "ref": "376936763201",
+    "ref_in_narration": false,
+    "balance": 78100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Meera Sharma",
+    "upi": "meera51@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T18:13:32",
+    "ref": "921489513433",
+    "ref_in_narration": true,
+    "balance": 78400.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aditya Rao",
+    "upi": "aditya21@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T19:15:19",
+    "ref": "778856855744",
+    "ref_in_narration": true,
+    "balance": 78700.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sana Nair",
+    "upi": "sana52@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-04T20:42:55",
+    "ref": "542160733754",
+    "ref_in_narration": false,
+    "balance": 79200.0
+  },
+  {
+    "kind": "credit",
+    "name": "Swathi Verma",
+    "upi": "swathi51@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-04T21:32:52",
+    "ref": "287603859770",
+    "ref_in_narration": true,
+    "balance": 79500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Rahul Reddy",
+    "upi": "rahul80@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-05T08:07:04",
+    "ref": "480598262045",
+    "ref_in_narration": false,
+    "balance": 80000.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aarav Verma",
+    "upi": "aarav82@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T08:39:05",
+    "ref": "899854353462",
+    "ref_in_narration": true,
+    "balance": 80300.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sai Khan",
+    "upi": "sai81@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T11:41:04",
+    "ref": "946120047113",
+    "ref_in_narration": false,
+    "balance": 80600.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ishaan Iyer",
+    "upi": "ishaan63@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T11:49:33",
+    "ref": "877496499091",
+    "ref_in_narration": false,
+    "balance": 80900.0
+  },
+  {
+    "kind": "debit",
+    "name": "Photo Studio",
+    "upi": "",
+    "amount": 4000.0,
+    "ts": "2026-10-05T14:06:50",
+    "ref": "383673657661",
+    "ref_in_narration": true,
+    "balance": 76900.0
+  },
+  {
+    "kind": "credit",
+    "name": "Karthik Rao",
+    "upi": "karthik43@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T14:22:46",
+    "ref": "769816934060",
+    "ref_in_narration": true,
+    "balance": 77200.0
+  },
+  {
+    "kind": "credit",
+    "name": "Harsha Iyer",
+    "upi": "harsha54@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T14:29:59",
+    "ref": "733963605766",
+    "ref_in_narration": false,
+    "balance": 77500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sai Rao",
+    "upi": "sai48@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-05T17:12:09",
+    "ref": "728809570154",
+    "ref_in_narration": true,
+    "balance": 77650.0
+  },
+  {
+    "kind": "credit",
+    "name": "Pooja Sharma",
+    "upi": "pooja59@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-05T19:01:54",
+    "ref": "870546688937",
+    "ref_in_narration": true,
+    "balance": 77800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Faizan Patel",
+    "upi": "faizan43@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T19:56:17",
+    "ref": "283136783777",
+    "ref_in_narration": false,
+    "balance": 78100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aarav Patel",
+    "upi": "aarav24@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T20:17:49",
+    "ref": "714627048281",
+    "ref_in_narration": false,
+    "balance": 78400.0
+  },
+  {
+    "kind": "credit",
+    "name": "Priya Rao",
+    "upi": "priya79@examplebank",
+    "amount": 500.0,
+    "ts": "2026-10-05T20:41:33",
+    "ref": "284124118244",
+    "ref_in_narration": true,
+    "balance": 78900.0
+  },
+  {
+    "kind": "credit",
+    "name": "Riya Khan",
+    "upi": "riya49@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T22:18:28",
+    "ref": "374648877190",
+    "ref_in_narration": false,
+    "balance": 79200.0
+  },
+  {
+    "kind": "credit",
+    "name": "Priya Das",
+    "upi": "priya32@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-05T22:23:33",
+    "ref": "624745171236",
+    "ref_in_narration": false,
+    "balance": 79500.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ananya Patel",
+    "upi": "ananya39@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T11:25:21",
+    "ref": "614586850142",
+    "ref_in_narration": true,
+    "balance": 79800.0
+  },
+  {
+    "kind": "credit",
+    "name": "Arjun Gupta",
+    "upi": "arjun43@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T14:41:05",
+    "ref": "786578091343",
+    "ref_in_narration": true,
+    "balance": 80100.0
+  },
+  {
+    "kind": "credit",
+    "name": "Meera Patel",
+    "upi": "meera32@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T16:08:17",
+    "ref": "208427109477",
+    "ref_in_narration": true,
+    "balance": 80400.0
+  },
+  {
+    "kind": "credit",
+    "name": "Imran Verma",
+    "upi": "imran69@examplebank",
+    "amount": 150.0,
+    "ts": "2026-10-06T16:10:04",
+    "ref": "959464743671",
+    "ref_in_narration": true,
+    "balance": 80550.0
+  },
+  {
+    "kind": "credit",
+    "name": "Riya Patel",
+    "upi": "riya38@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T16:29:03",
+    "ref": "517278895798",
+    "ref_in_narration": true,
+    "balance": 80850.0
+  },
+  {
+    "kind": "debit",
+    "name": "Banner Works",
+    "upi": "",
+    "amount": 4900.0,
+    "ts": "2026-10-06T17:01:03",
+    "ref": "732931839335",
+    "ref_in_narration": true,
+    "balance": 75950.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aditya Das",
+    "upi": "aditya38@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T18:03:14",
+    "ref": "305183473829",
+    "ref_in_narration": true,
+    "balance": 76250.0
+  },
+  {
+    "kind": "credit",
+    "name": "Faizan Iyer",
+    "upi": "faizan78@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T19:42:12",
+    "ref": "761595148465",
+    "ref_in_narration": true,
+    "balance": 76550.0
+  },
+  {
+    "kind": "credit",
+    "name": "Meera Gupta",
+    "upi": "meera65@examplebank",
+    "amount": 600.0,
+    "ts": "2026-10-06T19:55:06",
+    "ref": "924005045562",
+    "ref_in_narration": true,
+    "balance": 77150.0
+  },
+  {
+    "kind": "credit",
+    "name": "Neha Rao",
+    "upi": "neha90@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T20:19:54",
+    "ref": "390586518506",
+    "ref_in_narration": false,
+    "balance": 77450.0
+  },
+  {
+    "kind": "credit",
+    "name": "Imran Das",
+    "upi": "imran89@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T20:42:43",
+    "ref": "410470952145",
+    "ref_in_narration": true,
+    "balance": 77750.0
+  },
+  {
+    "kind": "credit",
+    "name": "Sneha Das",
+    "upi": "sneha53@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-06T21:16:32",
+    "ref": "940164005242",
+    "ref_in_narration": true,
+    "balance": 78050.0
+  }
+]
