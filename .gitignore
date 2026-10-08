@@ -7,3 +7,6 @@ data/real-redacted/
 .venv/
 __pycache__/
 .env
+.pytest_cache/
+.env
+   *.env

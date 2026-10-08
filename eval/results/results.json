@@ -1,0 +1,561 @@
+{
+  "claims": 100,
+  "ingestion": [
+    {
+      "statement": "statement_06_later.csv",
+      "rows_parsed": 5,
+      "rows_expected": 5,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-07T16:14:00 to 2026-10-07T20:33:00",
+      "balance_chain": "pass: Balance chain holds on all 4 checked rows.",
+      "parse_confidence": 0.85,
+      "warnings": 1
+    },
+    {
+      "statement": "statement_01_standard.csv",
+      "rows_parsed": 68,
+      "rows_expected": 68,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-01T00:00:00 to 2026-10-06T23:59:59",
+      "balance_chain": "pass: Balance chain holds on all 67 checked rows.",
+      "parse_confidence": 0.94,
+      "warnings": 2
+    },
+    {
+      "statement": "statement_02_drcr.csv",
+      "rows_parsed": 68,
+      "rows_expected": 68,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-01T00:00:00 to 2026-10-06T23:59:59",
+      "balance_chain": "pass: Balance chain holds on all 67 checked rows.",
+      "parse_confidence": 0.94,
+      "warnings": 2
+    },
+    {
+      "statement": "statement_03_signed.csv",
+      "rows_parsed": 68,
+      "rows_expected": 68,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-01T08:29:39 to 2026-10-06T21:16:32",
+      "balance_chain": "pass: Balance chain holds on all 67 checked rows.",
+      "parse_confidence": 0.97,
+      "warnings": 0
+    },
+    {
+      "statement": "statement_04_datetime.csv",
+      "rows_parsed": 68,
+      "rows_expected": 68,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-01T08:29:00 to 2026-10-06T21:16:00",
+      "balance_chain": "pass: Balance chain holds on all 67 checked rows.",
+      "parse_confidence": 0.97,
+      "warnings": 0
+    },
+    {
+      "statement": "statement_05_indian_junk.csv",
+      "rows_parsed": 68,
+      "rows_expected": 68,
+      "credits_exact": true,
+      "ref_recall": 1.0,
+      "ref_precision": 1.0,
+      "coverage": "2026-10-01T00:00:00 to 2026-10-06T23:59:59",
+      "balance_chain": "pass: Balance chain holds on all 67 checked rows.",
+      "parse_confidence": 0.94,
+      "warnings": 2
+    }
+  ],
+  "matching": {
+    "statement_01_standard.csv": {
+      "n": 100,
+      "accuracy": 0.96,
+      "false_verified": [],
+      "false_verified_rate": "0/45",
+      "fakes_marked_likely": [],
+      "false_not_found": [],
+      "false_not_found_rate": "0/55",
+      "by_category": {
+        "genuine": "50/50",
+        "genuine_delayed": "5/5",
+        "edited_amount": "10/10",
+        "invented_reference": "10/10",
+        "duplicate_reference": "0/4",
+        "duplicate_image": "4/4",
+        "fake_app": "8/8",
+        "wrong_payee": "5/5",
+        "old_screenshot": "4/4"
+      },
+      "by_reference_availability": {
+        "no reference in narration": "17/17",
+        "reference in narration": "33/33"
+      },
+      "confusion": {
+        "Likely match": {
+          "Likely match": 17
+        },
+        "Verified": {
+          "Verified": 33
+        },
+        "Can't verify yet": {
+          "Can't verify yet": 9
+        },
+        "Contradicted": {
+          "Contradicted": 10
+        },
+        "Not found": {
+          "Not found": 23
+        },
+        "Duplicate": {
+          "Contradicted": 4,
+          "Duplicate": 4
+        }
+      },
+      "mismatches": [
+        {
+          "claim_id": "claim_076",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 948467737826 appears on statement row S00009, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Vivaan Nair' vs statement 'Lakshmi Reddy'."
+          ]
+        },
+        {
+          "claim_id": "claim_077",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 614586850142 appears on statement row S00057, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Ayesha Rao' vs statement 'Ananya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_078",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 517278895798 appears on statement row S00061, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Faizan Gupta' vs statement 'Riya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_079",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 940164005242 appears on statement row S00068, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Nikhil Gupta' vs statement 'Sneha Das'."
+          ]
+        }
+      ]
+    },
+    "statement_02_drcr.csv": {
+      "n": 100,
+      "accuracy": 0.96,
+      "false_verified": [],
+      "false_verified_rate": "0/45",
+      "fakes_marked_likely": [],
+      "false_not_found": [],
+      "false_not_found_rate": "0/55",
+      "by_category": {
+        "genuine": "50/50",
+        "genuine_delayed": "5/5",
+        "edited_amount": "10/10",
+        "invented_reference": "10/10",
+        "duplicate_reference": "0/4",
+        "duplicate_image": "4/4",
+        "fake_app": "8/8",
+        "wrong_payee": "5/5",
+        "old_screenshot": "4/4"
+      },
+      "by_reference_availability": {
+        "no reference in narration": "17/17",
+        "reference in narration": "33/33"
+      },
+      "confusion": {
+        "Likely match": {
+          "Likely match": 17
+        },
+        "Verified": {
+          "Verified": 33
+        },
+        "Can't verify yet": {
+          "Can't verify yet": 9
+        },
+        "Contradicted": {
+          "Contradicted": 10
+        },
+        "Not found": {
+          "Not found": 23
+        },
+        "Duplicate": {
+          "Contradicted": 4,
+          "Duplicate": 4
+        }
+      },
+      "mismatches": [
+        {
+          "claim_id": "claim_076",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 948467737826 appears on statement row S00009, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Vivaan Nair' vs statement 'Lakshmi Reddy'."
+          ]
+        },
+        {
+          "claim_id": "claim_077",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 614586850142 appears on statement row S00057, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Ayesha Rao' vs statement 'Ananya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_078",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 517278895798 appears on statement row S00061, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Faizan Gupta' vs statement 'Riya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_079",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 940164005242 appears on statement row S00068, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Nikhil Gupta' vs statement 'Sneha Das'."
+          ]
+        }
+      ]
+    },
+    "statement_03_signed.csv": {
+      "n": 100,
+      "accuracy": 0.95,
+      "false_verified": [],
+      "false_verified_rate": "0/45",
+      "fakes_marked_likely": [],
+      "false_not_found": [],
+      "false_not_found_rate": "0/55",
+      "by_category": {
+        "genuine": "46/50",
+        "genuine_delayed": "5/5",
+        "edited_amount": "10/10",
+        "invented_reference": "10/10",
+        "duplicate_reference": "4/4",
+        "duplicate_image": "4/4",
+        "fake_app": "8/8",
+        "wrong_payee": "4/5",
+        "old_screenshot": "4/4"
+      },
+      "by_reference_availability": {
+        "no reference in narration": "17/17",
+        "reference in narration": "29/33"
+      },
+      "confusion": {
+        "Likely match": {
+          "Likely match": 17
+        },
+        "Verified": {
+          "Verified": 29,
+          "Duplicate": 4
+        },
+        "Can't verify yet": {
+          "Can't verify yet": 9
+        },
+        "Contradicted": {
+          "Contradicted": 10
+        },
+        "Not found": {
+          "Not found": 22,
+          "Can't verify yet": 1
+        },
+        "Duplicate": {
+          "Duplicate": 8
+        }
+      },
+      "mismatches": [
+        {
+          "claim_id": "claim_009",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 517278895798 as claim claim_078.",
+            "Claims claim_009 and claim_078 give the same reference but different payer names ('Riya Patel' vs 'Faizan Gupta'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_010",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 940164005242 as claim claim_079.",
+            "Claims claim_010 and claim_079 give the same reference but different payer names ('Sneha Das' vs 'Nikhil Gupta'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_016",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 948467737826 as claim claim_076.",
+            "Claims claim_016 and claim_076 give the same reference but different payer names ('Lakshmi Reddy' vs 'Vivaan Nair'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_035",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 614586850142 as claim claim_077.",
+            "Claims claim_035 and claim_077 give the same reference but different payer names ('Ananya Patel' vs 'Ayesha Rao'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_096",
+          "category": "wrong_payee",
+          "expected": "Not found",
+          "predicted": "Can't verify yet",
+          "reasons": [
+            "Claim timestamp is after the statement coverage end; a newer statement is required."
+          ]
+        }
+      ]
+    },
+    "statement_04_datetime.csv": {
+      "n": 100,
+      "accuracy": 0.95,
+      "false_verified": [],
+      "false_verified_rate": "0/45",
+      "fakes_marked_likely": [],
+      "false_not_found": [],
+      "false_not_found_rate": "0/55",
+      "by_category": {
+        "genuine": "46/50",
+        "genuine_delayed": "5/5",
+        "edited_amount": "10/10",
+        "invented_reference": "10/10",
+        "duplicate_reference": "4/4",
+        "duplicate_image": "4/4",
+        "fake_app": "8/8",
+        "wrong_payee": "4/5",
+        "old_screenshot": "4/4"
+      },
+      "by_reference_availability": {
+        "no reference in narration": "17/17",
+        "reference in narration": "29/33"
+      },
+      "confusion": {
+        "Likely match": {
+          "Likely match": 17
+        },
+        "Verified": {
+          "Verified": 29,
+          "Duplicate": 4
+        },
+        "Can't verify yet": {
+          "Can't verify yet": 9
+        },
+        "Contradicted": {
+          "Contradicted": 10
+        },
+        "Not found": {
+          "Not found": 22,
+          "Can't verify yet": 1
+        },
+        "Duplicate": {
+          "Duplicate": 8
+        }
+      },
+      "mismatches": [
+        {
+          "claim_id": "claim_009",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 517278895798 as claim claim_078.",
+            "Claims claim_009 and claim_078 give the same reference but different payer names ('Riya Patel' vs 'Faizan Gupta'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_010",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 940164005242 as claim claim_079.",
+            "Claims claim_010 and claim_079 give the same reference but different payer names ('Sneha Das' vs 'Nikhil Gupta'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_016",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 948467737826 as claim claim_076.",
+            "Claims claim_016 and claim_076 give the same reference but different payer names ('Lakshmi Reddy' vs 'Vivaan Nair'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_035",
+          "category": "genuine",
+          "expected": "Verified",
+          "predicted": "Duplicate",
+          "reasons": [
+            "Same 12-digit reference 614586850142 as claim claim_077.",
+            "Claims claim_035 and claim_077 give the same reference but different payer names ('Ananya Patel' vs 'Ayesha Rao'). One statement credit can belong to only one payer, so none is verified automatically."
+          ]
+        },
+        {
+          "claim_id": "claim_096",
+          "category": "wrong_payee",
+          "expected": "Not found",
+          "predicted": "Can't verify yet",
+          "reasons": [
+            "Claim timestamp is after the statement coverage end; a newer statement is required."
+          ]
+        }
+      ]
+    },
+    "statement_05_indian_junk.csv": {
+      "n": 100,
+      "accuracy": 0.96,
+      "false_verified": [],
+      "false_verified_rate": "0/45",
+      "fakes_marked_likely": [],
+      "false_not_found": [],
+      "false_not_found_rate": "0/55",
+      "by_category": {
+        "genuine": "50/50",
+        "genuine_delayed": "5/5",
+        "edited_amount": "10/10",
+        "invented_reference": "10/10",
+        "duplicate_reference": "0/4",
+        "duplicate_image": "4/4",
+        "fake_app": "8/8",
+        "wrong_payee": "5/5",
+        "old_screenshot": "4/4"
+      },
+      "by_reference_availability": {
+        "no reference in narration": "17/17",
+        "reference in narration": "33/33"
+      },
+      "confusion": {
+        "Likely match": {
+          "Likely match": 17
+        },
+        "Verified": {
+          "Verified": 33
+        },
+        "Can't verify yet": {
+          "Can't verify yet": 9
+        },
+        "Contradicted": {
+          "Contradicted": 10
+        },
+        "Not found": {
+          "Not found": 23
+        },
+        "Duplicate": {
+          "Contradicted": 4,
+          "Duplicate": 4
+        }
+      },
+      "mismatches": [
+        {
+          "claim_id": "claim_076",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 948467737826 appears on statement row S00009, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Vivaan Nair' vs statement 'Lakshmi Reddy'."
+          ]
+        },
+        {
+          "claim_id": "claim_077",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 614586850142 appears on statement row S00057, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Ayesha Rao' vs statement 'Ananya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_078",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 517278895798 appears on statement row S00061, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Faizan Gupta' vs statement 'Riya Patel'."
+          ]
+        },
+        {
+          "claim_id": "claim_079",
+          "category": "duplicate_reference",
+          "expected": "Duplicate",
+          "predicted": "Contradicted",
+          "reasons": [
+            "Reference 940164005242 appears on statement row S00068, so this row is the relevant evidence.",
+            "Payer information is incompatible: claim 'Nikhil Gupta' vs statement 'Sneha Das'."
+          ]
+        }
+      ]
+    }
+  },
+  "recheck": {
+    "statement_01_standard.csv": {
+      "delayed_claims": 5,
+      "correct_before_recheck": 5,
+      "correct_after_recheck": 5
+    },
+    "statement_02_drcr.csv": {
+      "delayed_claims": 5,
+      "correct_before_recheck": 5,
+      "correct_after_recheck": 5
+    },
+    "statement_03_signed.csv": {
+      "delayed_claims": 5,
+      "correct_before_recheck": 5,
+      "correct_after_recheck": 5
+    },
+    "statement_04_datetime.csv": {
+      "delayed_claims": 5,
+      "correct_before_recheck": 5,
+      "correct_after_recheck": 5
+    },
+    "statement_05_indian_junk.csv": {
+      "delayed_claims": 5,
+      "correct_before_recheck": 5,
+      "correct_after_recheck": 5
+    }
+  }
+}

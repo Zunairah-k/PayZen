@@ -542,7 +542,14 @@ Planned API flow:
 7. Export results
 ```
 
-Route names and request/response JSON are decided in the API layer (see [`API_INTEGRATION.md`](API_INTEGRATION.md), which documents the exact service-level contract and labels anything unconfirmed).
+| Route | Purpose |
+|---|---|
+| `GET /health` | Liveness check |
+| `POST /claims/upload` | Screenshots in, list of `Claim` out |
+| `POST /statement/upload` | Statement in (optional `password`, `allow_vision`), returns `{rows, meta, preview}` |
+| `POST /verify` | `{claims, rows, meta}` in, list of `Verdict` out (replies attached) |
+| `POST /recheck` | `{claims, rows, meta, previous_verdicts}` in, re-checked `Verdict`s out |
+(see [`API_INTEGRATION.md`](API_INTEGRATION.md), which documents the exact service-level contract and labels anything unconfirmed).
 
 ### What the UI should show
 
@@ -568,34 +575,31 @@ Wording for the UI should stay neutral: "could not be verified", "details differ
 PayZen/
 ├── backend/
 │   ├── app/
-│   │   ├── ingestion/
-│   │   │   ├── adapter.py
-│   │   │   ├── loader.py
-│   │   │   ├── mapping.py
-│   │   │   ├── pdf_loader.py
-│   │   │   ├── pipeline.py
-│   │   │   └── vision_loader.py
+│   │   ├── ingestion/       statement parsing: loader, mapping, parser, normalize, references,
+│   │   │                    coverage, chain (balance check), pdf_loader, vision_loader,
+│   │   │                    pipeline, report, messages, adapter
 │   │   ├── services/
-│   │   │   ├── extractor.py          screenshot -> Claim
-│   │   │   ├── matcher.py            match_claims
-│   │   │   ├── reply_generator.py    generate_reply / attach_replies
-│   │   │   ├── rechecker.py          recheck_claims
-│   │   │   └── edit_hint.py          compute_edit_hint
-│   │   ├── main.py                   API layer
-│   │   └── models.py                 frozen shared contracts
+│   │   │   ├── extractor.py         screenshot -> Claim
+│   │   │   ├── ingestor.py          statement -> rows + meta + preview (used by the API)
+│   │   │   ├── matcher.py           match_claims
+│   │   │   ├── reply_generator.py   suggested replies
+│   │   │   ├── rechecker.py         recheck_claims
+│   │   │   └── edit_hint.py         weak edit note
+│   │   ├── main.py          API layer
+│   │   └── models.py        frozen shared contracts
 │   └── requirements.txt
-├── tests/
-│   ├── ingestion/
-│   ├── test_extractor.py
-│   ├── test_matcher.py
-│   ├── test_phase3.py
-│   └── test_integration_smoke.py
-├── docs/                             ingestion test report, format results, …
-├── API_INTEGRATION.md  ARCHITECTURE.md  DEPLOYMENT.md  PRIVACY_SECURITY.md
-├── FINAL_INTEGRATION_CHECKLIST.md
-├── PHASE1_README.md  PHASE2_README.md  PHASE3_README.md
-├── ALIZAH_PHASE3_REPORT.md  ALIZAH_PROMPT4_REPORT.md
-├── requirements-alizah-phase1.txt  requirements-alizah-phase2.txt
+├── frontend/                React + Vite UI
+│   └── src/
+│       ├── components/      UploadPanel, SummaryBar, ResultsTable
+│       ├── App.tsx, ReasonCard.tsx, EditClaim.tsx
+│       ├── api.ts, types.ts, exportCsv.ts, sampleData.ts
+├── eval/
+│   ├── generate_synthetic.py    synthetic statements + screenshots (evaluation use only)
+│   ├── run_eval.py              evaluation harness
+│   └── results/                 results.md, results.json
+├── data/synthetic/              generated fake data + ground_truth.csv
+├── tests/                       unit, ingestion and integration smoke tests
+├── docs/                        architecture, API, deployment, privacy, phase notes, ingestion reports
 ├── pytest.ini
 └── README.md
 ```
@@ -606,19 +610,40 @@ PayZen/
 
 ### Setup
 
+Requirements: Python 3.10+ and Node 18+.
+
+**Backend (API on http://localhost:8000)**
+
 ```powershell
-git clone <repository-url>
-cd PayZen
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+python -m venv backend\venv
+backend\venv\Scripts\Activate.ps1          # macOS/Linux: source backend/venv/bin/activate
 pip install -r backend/requirements.txt
+cd backend
+uvicorn app.main:app --reload
 ```
 
-macOS / Linux / Git Bash: `source .venv/bin/activate`.
+**Frontend (UI on http://localhost:5173)**
 
-- The extraction/matching/reply/re-check/edit-hint services need only the standard library and pydantic, plus **Pillow** (perceptual image hash; without it the hash falls back to SHA-256) and **pytest** for tests. These are also listed in `requirements-alizah-phase1.txt` and `requirements-alizah-phase2.txt` for a minimal environment.
-- **No API key is required** to run the extractor with the mock / "no provider" setup, the matcher, replies, re-check or the test suite.
-- The PDF password-flow test needs the optional `reportlab` package; without it that test is skipped.
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend reads the backend address from `frontend/.env` (see `frontend/.env.example`). Click **Try sample data** to see all six verdicts without any backend call.
+
+**Tests** (from the repo root, backend venv active): `python -m pytest tests -v`
+
+**Evaluation** (from the repo root, backend venv active):
+
+```powershell
+pip install -r eval/requirements.txt
+python -m playwright install chromium
+python eval/generate_synthetic.py          # writes data/synthetic (fake data, evaluation use only)
+python eval/run_eval.py                    # writes eval/results/results.md and results.json
+```
+
+No API key is needed for the tests or the evaluation. [Add here, once decided: which variables the vision provider needs.]
 
 ### Running the tests
 
@@ -681,21 +706,33 @@ Verdict `reasons` and `field_differences` can contain payer names and amounts, s
 
 ---
 
-## 19. Evaluation plan
+## 19. Evaluation
 
-The system is designed to be evaluated on synthetic payment screenshots containing genuine claims, seeded altered/contradictory claims, duplicates and different image conditions (`clean`, `compressed`, `resized`, `photographed`).
+Reproduce: `python eval/generate_synthetic.py` (needs Playwright), then `python eval/run_eval.py`. Results are written to `eval/results/results.md` and `results.json`. All numbers below are exactly as produced by the script.
 
-Metrics, in priority order:
+**Setup.** 100 synthetic claims (55 genuine incl. 5 delayed, 45 seeded fakes), 5 statement layouts plus one later statement. Claims are built from ground truth ("oracle extraction"), so this evaluates statement ingestion and matching, not screenshot reading. Tested on 5 layouts; we do not claim support for every bank.
 
-1. **False Verified rate** (a claim marked Verified that the ground truth says is not supported) — must be as close to zero as possible.
-2. Correct matching of genuine claims.
-3. Contradiction detection (and exact-difference accuracy).
-4. Duplicate detection.
-5. Coverage handling (no "Not found" outside coverage).
-6. Explanation quality (are the reasons specific and correct?).
-7. Robustness of extraction and hashing across image conditions.
+**Ingestion.** All 5 layouts parsed 68/68 rows with exact credits, reference recall and precision 1.0, and a passing balance-chain check. The later statement parsed 5/5.
 
-Ground-truth fixtures and the ingestion test report live in `tests/` and `docs/`.
+**Verdicts (false-Verified is the safety metric).**
+
+| layout | accuracy | false-Verified | false Not-found |
+|---|---|---|---|
+| standard | 0.96 | 0/45 | 0/55 |
+| Dr/Cr suffix | 0.96 | 0/45 | 0/55 |
+| signed amount | 0.95 | 0/45 | 0/55 |
+| date + time columns | 0.95 | 0/45 | 0/55 |
+| Indian grouping + junk header | 0.96 | 0/45 | 0/55 |
+
+**By category (standard layout).** genuine 50/50, genuine_delayed 5/5, edited_amount 10/10, invented_reference 10/10, duplicate_image 4/4, fake_app 8/8, wrong_payee 5/5, old_screenshot 4/4, **duplicate_reference 0/4**.
+
+**Reference ablation.** Genuine claims with a reference in the narration: 33/33. Without one (amount, time and name ladder): 17/17.
+
+**Re-check.** 5/5 delayed claims were "Can't verify yet" first and resolved correctly after a newer statement.
+
+**Failure example.** All 4 `duplicate_reference` claims were reported as Contradicted ("payer incompatible with the statement name") instead of Duplicate. They were never Verified. [Add: matcher decision, and the extra layout 3/4 mismatch.]
+
+**Limitations.** Oracle extraction (an upper bound for matching); synthetic data written by the team; no robustness conditions (compressed, resized, photographed) yet; no real bank exports.
 
 ---
 
@@ -757,6 +794,9 @@ Planned (not yet done): **frontend → Vercel**, **backend → Render or Railway
 - Perceptual hashing is weak between screenshots of the same app; the edit hint is heuristic.
 - Confidence values are rule-based, not calibrated probabilities.
 - Replies are English only.
+- The evaluation uses oracle extraction (claims taken from ground truth), so it measures ingestion and matching only, not screenshot reading.
+- The evaluation data is synthetic and was written by the team. It does not prove performance on real bank exports.
+- Robustness under compressed, resized and photographed screenshots has not been evaluated yet.
 
 ---
 
@@ -811,12 +851,18 @@ Planned (not yet done): **frontend → Vercel**, **backend → Render or Railway
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Components, ownership, Mermaid diagram, what is integrated |
 | [`DEPLOYMENT.md`](DEPLOYMENT.md) | Vercel + Render/Railway preparation, secrets, local vs production |
 | [`PRIVACY_SECURITY.md`](PRIVACY_SECURITY.md) | Implemented safeguards vs recommendations |
-| [`FINAL_INTEGRATION_CHECKLIST.md`](FINAL_INTEGRATION_CHECKLIST.md) | What is left for the team, tagged by state |
 | [`PHASE1_README.md`](PHASE1_README.md) | Extraction and normalization details |
 | [`PHASE2_README.md`](PHASE2_README.md) | Matching engine details |
 | [`PHASE3_README.md`](PHASE3_README.md) | Replies, re-check, edit hint |
-| `ALIZAH_PHASE3_REPORT.md`, `ALIZAH_PROMPT4_REPORT.md` | Engineering progress reports |
 | `docs/` | Ingestion test report and format results |
+
+## Ownership at a Glance
+
+| Member | Primary ownership | Final integration responsibility |
+|---|---|---|
+| **Umaima** | API + UI | Connect ingestion, verification, replies and re-check into the user flow |
+| **Zunairah** | Statement ingestion | Provide normalized rows/meta and clear ingestion status/error contracts |
+| **Alizah** | Extraction + matcher + verdicts | Consume normalized statement data correctly and enforce conservative verification |
 
 ---
 
@@ -830,241 +876,7 @@ Planned (not yet done): **frontend → Vercel**, **backend → Render or Railway
 
 ---
 
-## Latest Team Integration Contract
-
-This is the shared hand-off contract for the final integration.
-
-### Umaima — API / UI
-
-Call the shared statement ingestion adapter with:
-
-```python
-to_shared(
-    ingest_statement(
-        file_bytes,
-        filename,
-        password=...,
-        allow_vision=...
-    )
-)
-```
-
-If `result.ok` is `False`, display:
-
-```python
-result.report.user_message
-```
-
-Use `result.report.error_code` for the UI action:
-
-| Error code | UI action |
-|---|---|
-| `pdf_password_required` | Ask for the PDF password |
-| `pdf_password_incorrect` | Ask the user to retry the password |
-| `vision_consent_required` | Show the vision-processing consent checkbox |
-| `pdf_scanned` | Show scanned-document handling / consent |
-
-If:
-
-```python
-result.report.needs_confirmation == True
-```
-
-show:
-
-```python
-result.report.mapping_summary
-```
-
-so the user can confirm the detected statement mapping.
-
-### Alizah — Matcher
-
-The matcher must consume the ingestion contract as follows:
-
-- Coverage timestamps are ISO strings.
-- `meta.coverage_end` is the **last covered moment**.
-- Statement amounts are floats.
-- Compare amounts using `round(x, 2)`, not raw floating-point equality.
-- Only `reference_confidence == "high"` may produce automatic `Verified`.
-- Medium, low, unknown, or uncertain references must never automatically produce `Verified`.
-
-The matching ladder remains:
-
-```text
-High-confidence reference + equal amount → Verified
-Amount + time + identity → Likely match
-Amount + time only → Low-confidence Likely match
-Reference/material field conflict → Contradicted
-No candidate inside coverage → Not found
-Outside/insufficient coverage → Can't verify yet
-Shared evidence → Duplicate
-```
-
-This is an integration requirement, not a reason to redesign the matcher.
-
----
-
-## Final Integration Checklist
-
-### Backend
-
-- [ ] Frozen Pydantic contracts remain compatible.
-- [ ] Statement ingestion returns shared `StatementRow` / `StatementMeta`.
-- [ ] Coverage values are handled as ISO strings.
-- [ ] `coverage_end` is treated as the last covered moment.
-- [ ] Amounts are compared after rounding to two decimals.
-- [ ] Only high-confidence references can produce `Verified`.
-- [ ] Tiers 2 and 3 can never produce `Verified`.
-- [ ] Each statement credit can support at most one claim.
-- [ ] Contradictions contain exact field differences.
-- [ ] Coverage boundaries produce `Can't verify yet` where appropriate.
-- [ ] Duplicate evidence is not treated as proof of fraud.
-- [ ] Re-check uses the same matcher logic.
-
-### Statement ingestion
-
-- [ ] CSV works.
-- [ ] XLSX works.
-- [ ] Pasted text works.
-- [ ] Text PDF works.
-- [ ] Password-protected PDF handles required/incorrect passwords.
-- [ ] Scanned PDF/photo path handles consent correctly.
-- [ ] Mapping confirmation is shown when required.
-- [ ] Coverage and balance-chain information are preserved.
-
-### Frontend
-
-- [ ] Upload flow works.
-- [ ] Ingestion errors display `user_message`.
-- [ ] Password prompts use the correct error code.
-- [ ] Vision consent appears when required.
-- [ ] Mapping confirmation appears when required.
-- [ ] All six verdict statuses are displayed.
-- [ ] Confidence and reasons are visible.
-- [ ] Contradiction differences are visible.
-- [ ] `follow_up_after` is visible for `Can't verify yet`.
-- [ ] Suggested replies are copyable.
-- [ ] Duplicate evidence is understandable.
-- [ ] No UI calls a payment or person "fake" or "fraud".
-
-### Security / privacy
-
-- [ ] No real screenshots or statements are committed.
-- [ ] No API keys or secrets are committed.
-- [ ] `.env` is not exposed to the frontend.
-- [ ] Uploads are not unnecessarily persisted.
-- [ ] Sensitive financial values are not written to logs.
-- [ ] External vision/model processing is disclosed and consented to where required.
-
-### Testing
-
-Run:
-
-```powershell
-python -m pytest tests/test_matcher.py -v
-python -m pytest tests -v
-```
-
-Latest team-reported full-suite result:
-
-```text
-467 passed, 1 skipped
-```
-
-The skipped PDF password-flow test occurs when the optional `reportlab` dependency is unavailable.
-
-Always rerun the complete suite after final integration because the test count may change.
-
----
-
-## What Each Member Should NOT Change
-
-### Umaima
-
-Should not rewrite:
-- the matcher
-- matching tiers
-- verdict meanings
-- frozen data contracts without team agreement
-
-### Zunairah
-
-Should not:
-- duplicate matching logic inside ingestion
-- change verdict semantics
-- change matcher scoring to compensate for ingestion behaviour
-
-### Alizah
-
-Should not:
-- rewrite statement ingestion
-- change frontend behaviour directly
-- independently redesign the API contract
-
-If a compatibility problem appears, make the smallest appropriate boundary fix and communicate the contract change.
-
----
-
-## Current Project Priority
-
-PayZen is now primarily in the **integration and final-polish stage**.
-
-The goal is to connect the completed work reliably:
-
-```text
-Payment Screenshot
-       ↓
-Claim Extraction
-       ↓
-Statement Ingestion
-       ↓
-Shared Models
-       ↓
-Matcher
-       ↓
-Verdict
-       ↓
-Suggested Reply
-       ↓
-Frontend
-       ↓
-Re-check / Export
-```
-
-The most important final rule is:
-
-> **Never produce a stronger verdict than the evidence supports.**
-
-A false `Verified` is more serious than a cautious `Not found` or `Can't verify yet`.
-
----
-
-## Ownership at a Glance
-
-| Member | Primary ownership | Final integration responsibility |
-|---|---|---|
-| **Umaima** | API + UI | Connect ingestion, verification, replies and re-check into the user flow |
-| **Zunairah** | Statement ingestion | Provide normalized rows/meta and clear ingestion status/error contracts |
-| **Alizah** | Extraction + matcher + verdicts | Consume normalized statement data correctly and enforce conservative verification |
-
----
-
-## Development Rule
-
-For every change:
-
-1. Check the frozen contracts first.
-2. Make the smallest change necessary.
-3. Add a focused regression test.
-4. Run the relevant test file.
-5. Run the full suite.
-6. Update documentation after the behaviour is confirmed.
-7. Tell the team about any contract change.
-
----
-
-### Project philosophy
+### Design philosophy
 
 PayZen does not ask *"is this person a scammer?"*
 It asks *"what evidence in the available data supports or contradicts this payment claim?"*
