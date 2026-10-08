@@ -1,0 +1,9 @@
+metric,value
+emails sent: clean / malicious,10 / 10
+emails processed,20 of 20
+accepted: clean / malicious,10 / 0
+blocked in total (held by Agentboxd / quarantined by our policy),10 (10 / 0)
+errors,0
+malicious emails stopped,10 of 10
+clean emails wrongly blocked,0 of 10
+statements read correctly from accepted clean emails,3 of 3
