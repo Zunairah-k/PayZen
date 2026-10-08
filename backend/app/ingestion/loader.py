@@ -95,7 +95,7 @@ def load_statement(source: Source, filename: Optional[str] = None, password: Opt
     if head.startswith(b"%PDF"):
         from .pdf_loader import load_pdf_rows
 
-        rows, lines, pdf_warnings = load_pdf_rows(data, password)
+        rows, lines, pdf_warnings = load_pdf_rows(data, password, allow_vision)
         return _finish(rows, lines, None, pdf_warnings, kind="pdf", source_name=name)
     
     if head.startswith(b"\x89PNG") or head.startswith(b"\xff\xd8"):

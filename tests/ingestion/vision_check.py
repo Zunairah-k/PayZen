@@ -52,3 +52,12 @@ if __name__ == "__main__":
                         if (a.credit or ZERO) != (t.credit or ZERO) or (a.debit or ZERO) != (t.debit or ZERO))
         wrong_ref = sum(1 for a, t in zip(r.rows, truth) if a.extracted_reference != t.ref)
         print(f"wrong amounts: {wrong_amt} | wrong references: {wrong_ref} | confirm needed: {r.report.needs_confirmation}")
+        
+if __name__ == "__main__":
+    pdf = io.BytesIO()
+    Image.open(io.BytesIO(png)).convert("RGB").save(pdf, format="PDF")
+    pdf_bytes = pdf.getvalue()
+    r = ingest_statement(pdf_bytes, "scan.pdf", llm_policy="never")
+    print("scanned PDF without consent ->", r.report.error_code)
+    r = ingest_statement(pdf_bytes, "scan.pdf", llm_policy="never", allow_vision=True)
+    print("scanned PDF ok:", r.ok, "| rows:", len(r.rows), "of", N, "| chain:", r.report.chain.get("status"))

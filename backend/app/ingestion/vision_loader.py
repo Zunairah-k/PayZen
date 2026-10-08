@@ -51,3 +51,27 @@ def load_image_rows(data: bytes, mime: str, allow_vision: bool) -> Tuple[List[Li
             "Try a sharper, straight-on photo, or download CSV or XLSX.")
     return rows, list(range(1, len(rows) + 1)), [
         "Transcribed from an image by a vision model; the balance check verifies the numbers."]
+
+def load_page_images_rows(images: List[bytes], allow_vision: bool) -> Tuple[List[List[str]], List[int], List[str]]:
+    """Scanned PDF: each page image is transcribed separately and the rows are joined."""
+    from .loader import StatementIngestError
+
+    rows: List[List[str]] = []
+    skipped = 0
+    for img in images:
+        try:
+            page_rows, _, _ = load_image_rows(img, "image/png", allow_vision)
+        except StatementIngestError as exc:
+            if exc.code != "vision_failed":
+                raise
+            skipped += 1
+            continue
+        rows.extend(page_rows)
+    if not rows:
+        raise StatementIngestError(
+            "vision_failed", "No table rows could be read from the scanned PDF.",
+            "Try a clearer scan, or download CSV or XLSX.")
+    warnings = ["Scanned PDF: each page was transcribed by a vision model; the balance check verifies the numbers."]
+    if skipped:
+        warnings.append(f"{skipped} page(s) could not be read.")
+    return rows, list(range(1, len(rows) + 1)), warnings
