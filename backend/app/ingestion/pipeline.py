@@ -92,17 +92,19 @@ def ingest_statement(
     llm_model: Optional[str] = None,
     mapping_override: Optional[Mapping] = None,
     password: Optional[str] = None,
+    allow_vision: bool = False,
 ) -> IngestResult:
     """Read a statement file (path or bytes). See module docstring.
 
     llm_policy: 'always'   consult the language model for every file (default),
                 'fallback' only when the deterministic mapper is not verified,
-                'never'    fully offline.
+                'never'    fully offline (column mapping).
     mapping_override: the user's confirmed mapping from the preview screen.
     password: for encrypted PDFs; used only to open the file, never stored.
+    allow_vision: user consent to send a picture of a statement to a vision model.
     """
     try:
-        table = load_statement(source, filename, password)
+        table = load_statement(source, filename, password, allow_vision)
     except StatementIngestError as exc:
         return _failure(exc, source_name=filename)
     except Exception as exc:  # pragma: no cover - last line of defence

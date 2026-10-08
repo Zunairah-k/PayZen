@@ -407,21 +407,37 @@ class _GeminiClient:
         from google import genai
         from google.genai import types
 
-        self._client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=30000))
+        self._client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=60000))
         self.default_model = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+        self.vision_model = os.getenv("GEMINI_VISION_MODEL", self.default_model)
 
-    def complete(self, system: str, user: str, model: str) -> str:
-        from google.genai import types
-
+    @staticmethod
+    def _throttle() -> None:
         wait = float(os.getenv("GEMINI_MIN_INTERVAL", "6.5")) - (time.time() - _LAST_CALL[0])
         if wait > 0:
             time.sleep(wait)
         _LAST_CALL[0] = time.time()
+
+    def complete(self, system: str, user: str, model: str) -> str:
+        from google.genai import types
+
+        self._throttle()
         resp = self._client.models.generate_content(
             model=model, contents=user,
             config=types.GenerateContentConfig(
                 system_instruction=system, temperature=0, max_output_tokens=2000,
                 response_mime_type="application/json"),
+        )
+        return resp.text or ""
+
+    def transcribe_image(self, image: bytes, mime: str, prompt: str, model: str) -> str:
+        from google.genai import types
+
+        self._throttle()
+        resp = self._client.models.generate_content(
+            model=model, contents=[types.Part.from_bytes(data=image, mime_type=mime), prompt],
+            config=types.GenerateContentConfig(
+                temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
         )
         return resp.text or ""
 

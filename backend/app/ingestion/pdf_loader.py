@@ -48,7 +48,8 @@ def _is_password_error(exc: BaseException) -> bool:
     seen = [exc, exc.__cause__, exc.__context__] + [a for a in getattr(exc, "args", ()) if isinstance(a, BaseException)]
     return any(e is not None and "Password" in type(e).__name__ for e in seen)
 
-def load_pdf_rows(data: bytes, password: Optional[str] = None) -> Tuple[List[List[str]], List[int], List[str]]:
+def load_pdf_rows(data: bytes, password: Optional[str] = None,
+                  allow_vision: bool = False) -> Tuple[List[List[str]], List[int], List[str]]:
     """Return (rows, line_numbers, warnings). Raises StatementIngestError with a
     machine-readable code: pdf_password_required / pdf_password_incorrect /
     pdf_scanned / pdf_unreadable."""
@@ -81,10 +82,19 @@ def load_pdf_rows(data: bytes, password: Optional[str] = None) -> Tuple[List[Lis
     with pdf:
         pages = list(pdf.pages)
         if not any((p.extract_text() or "").strip() for p in pages):
-            raise StatementIngestError(
-                "pdf_scanned", "This PDF has no selectable text (it looks scanned).",
-                "Photo and scanned statements are not supported in this build yet. "
-                "Download CSV or XLSX, or paste the table text.")
+            if not allow_vision:
+                raise StatementIngestError(
+                    "pdf_scanned", "This PDF has no selectable text (it looks scanned).",
+                    "Tick the consent box to have it read as images by a vision model, "
+                    "or download CSV or XLSX from net banking.")
+            from .vision_loader import load_page_images_rows
+
+            images = []
+            for page in pages[:10]:  # cap the number of pages sent to the model
+                buf = io.BytesIO()
+                page.to_image(resolution=150).original.save(buf, format="PNG")
+                images.append(buf.getvalue())
+            return load_page_images_rows(images, True)
         for page in pages:
             page_rows = _table_rows(page)
             if _tabular(page_rows) < 2:

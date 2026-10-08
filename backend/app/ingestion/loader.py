@@ -72,7 +72,8 @@ class HeaderInfo:
 Source = Union[str, os.PathLike, bytes, bytearray]
 
 
-def load_statement(source: Source, filename: Optional[str] = None, password: Optional[str] = None) -> RawTable:
+def load_statement(source: Source, filename: Optional[str] = None, password: Optional[str] = None,
+                   allow_vision: bool = False) -> RawTable:
     """Load a statement from a path or raw bytes."""
     if isinstance(source, (str, os.PathLike)):
         path = Path(source)
@@ -94,15 +95,16 @@ def load_statement(source: Source, filename: Optional[str] = None, password: Opt
     if head.startswith(b"%PDF"):
         from .pdf_loader import load_pdf_rows
 
-        rows, lines, pdf_warnings = load_pdf_rows(data, password)
+        rows, lines, pdf_warnings = load_pdf_rows(data, password, allow_vision)
         return _finish(rows, lines, None, pdf_warnings, kind="pdf", source_name=name)
     
     if head.startswith(b"\x89PNG") or head.startswith(b"\xff\xd8"):
-        raise StatementIngestError(
-            "image_unsupported",
-            "Photos of statements are not supported in this build yet.",
-            "Download the statement as CSV or XLSX from net banking, or paste the table text.",
-        )
+        from .vision_loader import load_image_rows
+
+        mime = "image/png" if head.startswith(b"\x89PNG") else "image/jpeg"
+        rows, lines, vision_warnings = load_image_rows(data, mime, allow_vision)
+        return _finish(rows, lines, None, vision_warnings, kind="image", source_name=name)
+    
     if head.startswith(b"\xd0\xcf\x11\xe0"):
         raise StatementIngestError(
             "xls_unsupported",
