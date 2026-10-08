@@ -1,6 +1,6 @@
 # Day 1 report: statement ingestion
 
-Generated 2026-10-07 by `python -m tests.ingestion.test_layouts` (language-model policy: `always`; model consulted on 15 of 15 layouts).
+Generated 2026-10-08 by `python -m tests.ingestion.test_layouts` (language-model policy: `never`; model consulted on 0 of 17 layouts).
 
 ## What was built (`backend/app/ingestion`)
 
@@ -12,7 +12,7 @@ Generated 2026-10-07 by `python -m tests.ingestion.test_layouts` (language-model
 
 ## Results on synthetic layouts
 
-15 of 15 layouts parsed with every date, amount, balance and reference matching ground truth.
+17 of 17 layouts parsed with every date, amount, balance and reference matching ground truth.
 
 | Layout | Result | Rows parsed | Balance chain | Mapping used |
 |---|---|---|---|---|
@@ -31,6 +31,8 @@ Generated 2026-10-07 by `python -m tests.ingestion.test_layouts` (language-model
 | X2_no_balance_column | ok | 80/80 | unavailable (0/0) | heuristic |
 | X3_no_header_row | ok | 80/80 | pass (79/79) | heuristic |
 | X4_tab_separated | ok | 80/80 | pass (79/79) | heuristic |
+| 12_text_pdf_page_breaks | ok | 80/80 | pass (79/79) | heuristic |
+| 13_text_pdf_password | ok | 80/80 | pass (79/79) | heuristic |
 
 ## Failures
 

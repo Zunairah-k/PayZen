@@ -72,7 +72,7 @@ class HeaderInfo:
 Source = Union[str, os.PathLike, bytes, bytearray]
 
 
-def load_statement(source: Source, filename: Optional[str] = None) -> RawTable:
+def load_statement(source: Source, filename: Optional[str] = None, password: Optional[str] = None) -> RawTable:
     """Load a statement from a path or raw bytes."""
     if isinstance(source, (str, os.PathLike)):
         path = Path(source)
@@ -92,11 +92,11 @@ def load_statement(source: Source, filename: Optional[str] = None) -> RawTable:
 
     head = data[:8]
     if head.startswith(b"%PDF"):
-        raise StatementIngestError(
-            "pdf_unsupported",
-            "PDF statements are not supported in this build yet.",
-            "Download the statement as CSV or XLSX from net banking, or paste the table text.",
-        )
+        from .pdf_loader import load_pdf_rows
+
+        rows, lines, pdf_warnings = load_pdf_rows(data, password)
+        return _finish(rows, lines, None, pdf_warnings, kind="pdf", source_name=name)
+    
     if head.startswith(b"\x89PNG") or head.startswith(b"\xff\xd8"):
         raise StatementIngestError(
             "image_unsupported",

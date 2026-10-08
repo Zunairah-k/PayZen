@@ -24,7 +24,7 @@ POLICY = os.getenv("INGEST_TEST_POLICY", "never")
 
 
 def check(fx: Fixture):
-    res = ingest_statement(fx.data, fx.filename, llm_policy=POLICY)
+    res = ingest_statement(fx.data, fx.filename, llm_policy=POLICY, password=fx.password)
     if not res.ok:
         return res, [f"ingest failed: {res.report.user_message}"]
     rows, truth = res.rows, fx.truth
@@ -74,7 +74,7 @@ def run_all():
             "chain": ch.get("status", "-"),
             "checked": f"{ch.get('passed', 0)}/{ch.get('checked', 0)}" if ch else "-",
             "mapping": rep.mapping_source or "-",
-            "llm_used": bool((rep.llm or {}).get("used")),
+            "llm_used": bool((rep.llm or {}).get("used")) and not (rep.llm or {}).get("error"),
         })
     return results
 
