@@ -1,21 +1,101 @@
-claim_id,file,payer_name,payer_upi,amount,reference,timestamp,reference_in_narration,expected_verdict,reason
-claim_001,screenshots/claim_001.jpg,Sana Nair,sana52@examplebank,500.00,542160733754,2026-10-04 20:42:55,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_002,screenshots/claim_002.png,Sneha Iyer,sneha33@examplebank,600.00,367190229413,2026-10-03 21:30:07,True,Verified,Genuine payment; reference is in the statement narration
-claim_003,screenshots/claim_003.jpg,Sneha Das,sneha53@examplebank,300.00,940164005242,2026-10-06 21:16:32,True,Verified,Genuine payment; reference is in the statement narration
-claim_004,screenshots/claim_004.jpg,Rohan Sharma,rohan47@examplebank,300.00,499468044369,2026-10-02 14:42:24,True,Verified,Genuine payment; reference is in the statement narration
-claim_005,screenshots/claim_005.png,Karthik Patel,karthik62@examplebank,300.00,893792374740,2026-10-02 10:11:05,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_006,screenshots/claim_006.png,Priya Das,priya32@examplebank,300.00,624745171236,2026-10-05 22:23:33,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_007,screenshots/claim_007.png,Meera Gupta,meera65@examplebank,600.00,924005045562,2026-10-06 19:55:06,True,Verified,Genuine payment; reference is in the statement narration
-claim_008,screenshots/claim_008.jpg,Faizan Patel,faizan43@examplebank,300.00,283136783777,2026-10-05 19:56:17,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_009,screenshots/claim_009.jpg,Naveen Iyer,naveen69@examplebank,300.00,324190496631,2026-10-03 10:38:38,True,Verified,Genuine payment; reference is in the statement narration
-claim_010,screenshots/claim_010.jpg,Priya Reddy,priya41@examplebank,500.00,856670106513,2026-10-04 11:06:06,True,Verified,Genuine payment; reference is in the statement narration
-claim_011,screenshots/claim_011.png,Harsha Iyer,harsha54@examplebank,300.00,733963605766,2026-10-05 14:29:59,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_012,screenshots/claim_012.jpg,Sai Khan,sai81@examplebank,300.00,946120047113,2026-10-05 11:41:04,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_013,screenshots/claim_013.png,Aditya Rao,aditya21@examplebank,300.00,778856855744,2026-10-04 19:15:19,True,Verified,Genuine payment; reference is in the statement narration
-claim_014,screenshots/claim_014.jpg,Imran Gupta,imran50@examplebank,150.00,823166587603,2026-10-01 10:09:14,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_015,screenshots/claim_015.png,Aditya Verma,aditya27@examplebank,150.00,737556464170,2026-10-02 08:16:24,True,Verified,Genuine payment; reference is in the statement narration
-claim_016,screenshots/claim_016.jpg,Swathi Das,swathi93@examplebank,600.00,717187026217,2026-10-04 08:08:32,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_017,screenshots/claim_017.jpg,Riya Khan,riya49@examplebank,300.00,374648877190,2026-10-05 22:18:28,False,Likely match,"Genuine payment; no reference in narration, must match on amount, date and name"
-claim_018,screenshots/claim_018.jpg,Vivaan Rao,vivaan41@examplebank,150.00,579965075273,2026-10-01 12:56:28,True,Verified,Genuine payment; reference is in the statement narration
-claim_019,screenshots/claim_019.png,Aarav Sharma,aarav78@examplebank,300.00,517810801326,2026-10-04 10:17:29,True,Verified,Genuine payment; reference is in the statement narration
-claim_020,screenshots/claim_020.png,Lakshmi Reddy,lakshmi24@examplebank,300.00,948467737826,2026-10-01 18:53:09,True,Verified,Genuine payment; reference is in the statement narration
+claim_id,file,category,payer_name,payer_upi,amount,reference,timestamp,reference_in_narration,expected_verdict,expected_after_recheck,original_claim,reason
+claim_001,screenshots/claim_001.png,genuine,Aarav Patel,aarav24@examplebank,300.00,714627048281,2026-10-05 20:17:49,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_002,screenshots/claim_002.png,genuine,Faizan Patel,faizan43@examplebank,300.00,283136783777,2026-10-05 19:56:17,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_003,screenshots/claim_003.jpg,genuine,Sneha Iyer,sneha33@examplebank,600.00,367190229413,2026-10-03 21:30:07,True,Verified,,,Genuine; reference is in the narration
+claim_004,screenshots/claim_004.jpg,genuine,Isha Das,isha79@examplebank,300.00,988208121913,2026-10-03 08:03:37,True,Verified,,,Genuine; reference is in the narration
+claim_005,screenshots/claim_005.jpg,genuine,Sana Nair,sana52@examplebank,500.00,542160733754,2026-10-04 20:42:55,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_006,screenshots/claim_006.jpg,genuine,Harsha Iyer,harsha54@examplebank,300.00,733963605766,2026-10-05 14:29:59,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_007,screenshots/claim_007.jpg,genuine,Manoj Sharma,manoj25@examplebank,500.00,433749894134,2026-10-03 09:47:34,True,Verified,,,Genuine; reference is in the narration
+claim_008,screenshots/claim_008.jpg,genuine,Imran Verma,imran69@examplebank,150.00,959464743671,2026-10-06 16:10:04,True,Verified,,,Genuine; reference is in the narration
+claim_009,screenshots/claim_009.png,genuine,Riya Patel,riya38@examplebank,300.00,517278895798,2026-10-06 16:29:03,True,Verified,,,Genuine; reference is in the narration
+claim_010,screenshots/claim_010.jpg,genuine,Sneha Das,sneha53@examplebank,300.00,940164005242,2026-10-06 21:16:32,True,Verified,,,Genuine; reference is in the narration
+claim_011,screenshots/claim_011.png,genuine,Swathi Das,swathi93@examplebank,600.00,717187026217,2026-10-04 08:08:32,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_012,screenshots/claim_012.jpg,genuine,Aditya Verma,aditya27@examplebank,150.00,737556464170,2026-10-02 08:16:24,True,Verified,,,Genuine; reference is in the narration
+claim_013,screenshots/claim_013.png,genuine,Arjun Rao,arjun37@examplebank,150.00,847468723430,2026-10-01 10:24:00,True,Verified,,,Genuine; reference is in the narration
+claim_014,screenshots/claim_014.png,genuine,Meera Iyer,meera81@examplebank,300.00,375496513709,2026-10-04 08:16:34,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_015,screenshots/claim_015.jpg,genuine,Neha Rao,neha90@examplebank,300.00,390586518506,2026-10-06 20:19:54,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_016,screenshots/claim_016.jpg,genuine,Lakshmi Reddy,lakshmi24@examplebank,300.00,948467737826,2026-10-01 18:53:09,True,Verified,,,Genuine; reference is in the narration
+claim_017,screenshots/claim_017.png,genuine,Arjun Verma,arjun48@examplebank,300.00,318384251354,2026-10-01 08:29:39,True,Verified,,,Genuine; reference is in the narration
+claim_018,screenshots/claim_018.jpg,genuine,Pooja Rao,pooja51@examplebank,300.00,249027874296,2026-10-01 09:14:43,True,Verified,,,Genuine; reference is in the narration
+claim_019,screenshots/claim_019.png,genuine,Karthik Rao,karthik43@examplebank,300.00,769816934060,2026-10-05 14:22:46,True,Verified,,,Genuine; reference is in the narration
+claim_020,screenshots/claim_020.jpg,genuine,Harsha Reddy,harsha80@examplebank,300.00,943487347143,2026-10-02 19:55:30,True,Verified,,,Genuine; reference is in the narration
+claim_021,screenshots/claim_021.jpg,genuine,Rahul Reddy,rahul80@examplebank,500.00,480598262045,2026-10-05 08:07:04,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_022,screenshots/claim_022.jpg,genuine,Karthik Sharma,karthik40@examplebank,150.00,382278248963,2026-10-01 09:46:31,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_023,screenshots/claim_023.png,genuine,Sai Iyer,sai80@examplebank,300.00,910932480861,2026-10-03 15:56:44,True,Verified,,,Genuine; reference is in the narration
+claim_024,screenshots/claim_024.png,genuine,Aditya Rao,aditya21@examplebank,300.00,778856855744,2026-10-04 19:15:19,True,Verified,,,Genuine; reference is in the narration
+claim_025,screenshots/claim_025.png,genuine,Priya Rao,priya79@examplebank,500.00,284124118244,2026-10-05 20:41:33,True,Verified,,,Genuine; reference is in the narration
+claim_026,screenshots/claim_026.png,genuine,Ayesha Verma,ayesha98@examplebank,300.00,778713315098,2026-10-03 14:42:41,True,Verified,,,Genuine; reference is in the narration
+claim_027,screenshots/claim_027.png,genuine,Aditya Das,aditya38@examplebank,300.00,305183473829,2026-10-06 18:03:14,True,Verified,,,Genuine; reference is in the narration
+claim_028,screenshots/claim_028.png,genuine,Riya Khan,riya49@examplebank,300.00,374648877190,2026-10-05 22:18:28,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_029,screenshots/claim_029.png,genuine,Pooja Patel,pooja83@examplebank,300.00,840909743953,2026-10-03 19:18:01,True,Verified,,,Genuine; reference is in the narration
+claim_030,screenshots/claim_030.png,genuine,Fatima Sharma,fatima75@examplebank,300.00,469166978480,2026-10-01 21:07:09,True,Verified,,,Genuine; reference is in the narration
+claim_031,screenshots/claim_031.png,genuine,Meera Sharma,meera51@examplebank,300.00,921489513433,2026-10-04 18:13:32,True,Verified,,,Genuine; reference is in the narration
+claim_032,screenshots/claim_032.png,genuine,Sai Reddy,sai86@examplebank,300.00,858404499727,2026-10-02 21:04:17,True,Verified,,,Genuine; reference is in the narration
+claim_033,screenshots/claim_033.png,genuine,Arjun Gupta,arjun43@examplebank,300.00,786578091343,2026-10-06 14:41:05,True,Verified,,,Genuine; reference is in the narration
+claim_034,screenshots/claim_034.png,genuine,Ayesha Patel,ayesha46@examplebank,500.00,693618324210,2026-10-04 09:43:14,True,Verified,,,Genuine; reference is in the narration
+claim_035,screenshots/claim_035.jpg,genuine,Ananya Patel,ananya39@examplebank,300.00,614586850142,2026-10-06 11:25:21,True,Verified,,,Genuine; reference is in the narration
+claim_036,screenshots/claim_036.png,genuine,Sai Khan,sai81@examplebank,300.00,946120047113,2026-10-05 11:41:04,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_037,screenshots/claim_037.jpg,genuine,Diya Iyer,diya15@examplebank,300.00,376936763201,2026-10-04 17:54:49,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_038,screenshots/claim_038.png,genuine,Aarav Sharma,aarav78@examplebank,300.00,517810801326,2026-10-04 10:17:29,True,Verified,,,Genuine; reference is in the narration
+claim_039,screenshots/claim_039.png,genuine,Sai Rao,sai48@examplebank,150.00,728809570154,2026-10-05 17:12:09,True,Verified,,,Genuine; reference is in the narration
+claim_040,screenshots/claim_040.png,genuine,Priya Reddy,priya41@examplebank,500.00,856670106513,2026-10-04 11:06:06,True,Verified,,,Genuine; reference is in the narration
+claim_041,screenshots/claim_041.png,genuine,Nikhil Das,nikhil16@examplebank,600.00,203309232719,2026-10-03 11:41:04,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_042,screenshots/claim_042.png,genuine,Vivaan Rao,vivaan41@examplebank,150.00,579965075273,2026-10-01 12:56:28,True,Verified,,,Genuine; reference is in the narration
+claim_043,screenshots/claim_043.jpg,genuine,Pooja Sharma,pooja59@examplebank,150.00,870546688937,2026-10-05 19:01:54,True,Verified,,,Genuine; reference is in the narration
+claim_044,screenshots/claim_044.jpg,genuine,Imran Das,imran89@examplebank,300.00,410470952145,2026-10-06 20:42:43,True,Verified,,,Genuine; reference is in the narration
+claim_045,screenshots/claim_045.jpg,genuine,Ishaan Iyer,ishaan63@examplebank,300.00,877496499091,2026-10-05 11:49:33,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_046,screenshots/claim_046.jpg,genuine,Priya Das,priya32@examplebank,300.00,624745171236,2026-10-05 22:23:33,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_047,screenshots/claim_047.jpg,genuine,Rohan Sharma,rohan47@examplebank,300.00,499468044369,2026-10-02 14:42:24,True,Verified,,,Genuine; reference is in the narration
+claim_048,screenshots/claim_048.jpg,genuine,Karthik Patel,karthik62@examplebank,300.00,893792374740,2026-10-02 10:11:05,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_049,screenshots/claim_049.png,genuine,Imran Gupta,imran50@examplebank,150.00,823166587603,2026-10-01 10:09:14,False,Likely match,,,"Genuine; no reference in narration, must match on amount, time and name"
+claim_050,screenshots/claim_050.png,genuine,Meera Gupta,meera65@examplebank,600.00,924005045562,2026-10-06 19:55:06,True,Verified,,,Genuine; reference is in the narration
+claim_051,screenshots/claim_051.jpg,genuine_delayed,Arjun Khan,arjun94@examplebank,300.00,358514936899,2026-10-07 16:14:00,True,Can't verify yet,Verified,,Genuine payment dated after the first statement ends
+claim_052,screenshots/claim_052.png,genuine_delayed,Vivaan Das,vivaan81@examplebank,300.00,365604945198,2026-10-07 17:21:00,True,Can't verify yet,Verified,,Genuine payment dated after the first statement ends
+claim_053,screenshots/claim_053.jpg,genuine_delayed,Ananya Nair,ananya50@examplebank,300.00,727111161528,2026-10-07 19:16:00,True,Can't verify yet,Verified,,Genuine payment dated after the first statement ends
+claim_054,screenshots/claim_054.png,genuine_delayed,Aarav Das,aarav94@examplebank,300.00,224455022961,2026-10-07 20:17:00,True,Can't verify yet,Verified,,Genuine payment dated after the first statement ends
+claim_055,screenshots/claim_055.jpg,genuine_delayed,Karthik Reddy,karthik21@examplebank,300.00,566752545991,2026-10-07 20:33:00,False,Can't verify yet,Likely match,,Genuine payment dated after the first statement ends
+claim_056,screenshots/claim_056.jpg,edited_amount,Naveen Iyer,naveen69@examplebank,3000.00,324190496631,2026-10-03 10:38:38,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_057,screenshots/claim_057.png,edited_amount,Aarav Verma,aarav82@examplebank,3000.00,899854353462,2026-10-05 08:39:05,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_058,screenshots/claim_058.jpg,edited_amount,Swathi Nair,swathi65@examplebank,3000.00,827298069901,2026-10-04 13:42:43,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_059,screenshots/claim_059.png,edited_amount,Ishaan Gupta,ishaan72@examplebank,6000.00,712567468071,2026-10-04 13:26:21,True,Contradicted,,,Reference matches a credit of Rs. 600; screenshot says Rs. 6000
+claim_060,screenshots/claim_060.png,edited_amount,Faizan Iyer,faizan78@examplebank,3000.00,761595148465,2026-10-06 19:42:12,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_061,screenshots/claim_061.jpg,edited_amount,Meera Patel,meera32@examplebank,3000.00,208427109477,2026-10-06 16:08:17,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_062,screenshots/claim_062.png,edited_amount,Diya Rao,diya36@examplebank,3000.00,528120679740,2026-10-03 18:05:10,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_063,screenshots/claim_063.jpg,edited_amount,Faizan Khan,faizan15@examplebank,1500.00,358692322602,2026-10-02 18:15:42,True,Contradicted,,,Reference matches a credit of Rs. 150; screenshot says Rs. 1500
+claim_064,screenshots/claim_064.png,edited_amount,Swathi Verma,swathi51@examplebank,3000.00,287603859770,2026-10-04 21:32:52,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_065,screenshots/claim_065.png,edited_amount,Sana Sharma,sana23@examplebank,3000.00,926284987769,2026-10-03 18:57:53,True,Contradicted,,,Reference matches a credit of Rs. 300; screenshot says Rs. 3000
+claim_066,screenshots/claim_066.png,invented_reference,Meera Reddy,meera51@examplebank,500.00,951613696816,2026-10-04 20:32:55,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_067,screenshots/claim_067.png,invented_reference,Manoj Patel,manoj53@examplebank,500.00,721818835523,2026-10-05 08:01:04,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_068,screenshots/claim_068.jpg,invented_reference,Rohan Khan,rohan42@examplebank,300.00,492127799799,2026-10-04 17:46:49,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_069,screenshots/claim_069.png,invented_reference,Ananya Iyer,ananya29@examplebank,300.00,377449058147,2026-10-05 22:26:28,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_070,screenshots/claim_070.jpg,invented_reference,Sneha Reddy,sneha17@examplebank,300.00,611998679807,2026-10-02 10:14:05,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_071,screenshots/claim_071.jpg,invented_reference,Fatima Rao,fatima51@examplebank,300.00,982071518203,2026-10-03 15:00:41,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_072,screenshots/claim_072.jpg,invented_reference,Sana Gupta,sana66@examplebank,600.00,455466590515,2026-10-03 11:54:04,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_073,screenshots/claim_073.jpg,invented_reference,Rohan Verma,rohan96@examplebank,300.00,649251925462,2026-10-06 18:07:14,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_074,screenshots/claim_074.jpg,invented_reference,Riya Sharma,riya49@examplebank,300.00,852816850542,2026-10-05 14:37:46,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_075,screenshots/claim_075.jpg,invented_reference,Arjun Iyer,arjun72@examplebank,150.00,522141888059,2026-10-06 16:02:04,,Not found,,,"Amount and time look right, but the reference is not in the statement"
+claim_076,screenshots/claim_076.jpg,duplicate_reference,Vivaan Nair,vivaan56@examplebank,300.00,948467737826,2026-10-01 18:53:09,,Duplicate,,claim_016,Reference already belongs to another claim
+claim_077,screenshots/claim_077.png,duplicate_reference,Ayesha Rao,ayesha66@examplebank,300.00,614586850142,2026-10-06 11:25:21,,Duplicate,,claim_035,Reference already belongs to another claim
+claim_078,screenshots/claim_078.png,duplicate_reference,Faizan Gupta,faizan39@examplebank,300.00,517278895798,2026-10-06 16:29:03,,Duplicate,,claim_009,Reference already belongs to another claim
+claim_079,screenshots/claim_079.png,duplicate_reference,Nikhil Gupta,nikhil34@examplebank,300.00,940164005242,2026-10-06 21:16:32,,Duplicate,,claim_010,Reference already belongs to another claim
+claim_080,screenshots/claim_080.jpg,duplicate_image,Pooja Sharma,pooja59@examplebank,150.00,870546688937,2026-10-05 19:01:54,True,Duplicate,,claim_043,Same screenshot submitted twice
+claim_081,screenshots/claim_081.png,duplicate_image,Sai Rao,sai48@examplebank,150.00,728809570154,2026-10-05 17:12:09,True,Duplicate,,claim_039,Same screenshot submitted twice
+claim_082,screenshots/claim_082.png,duplicate_image,Arjun Gupta,arjun43@examplebank,300.00,786578091343,2026-10-06 14:41:05,True,Duplicate,,claim_033,Same screenshot submitted twice
+claim_083,screenshots/claim_083.jpg,duplicate_image,Rohan Sharma,rohan47@examplebank,300.00,499468044369,2026-10-02 14:42:24,True,Duplicate,,claim_047,Same screenshot submitted twice
+claim_084,screenshots/claim_084.jpg,fake_app,Diya Das,diya66@examplebank,1000.00,823924075818,2026-10-03 20:24:32,,Not found,,,"Convincing success screen, no matching credit"
+claim_085,screenshots/claim_085.png,fake_app,Nikhil Sharma,nikhil30@examplebank,800.00,813750606853,2026-10-04 22:32:09,,Not found,,,"Convincing success screen, no matching credit"
+claim_086,screenshots/claim_086.png,fake_app,Aarav Iyer,aarav22@examplebank,800.00,927790104328,2026-10-02 10:02:18,,Not found,,,"Convincing success screen, no matching credit"
+claim_087,screenshots/claim_087.png,fake_app,Isha Nair,isha24@examplebank,800.00,569711798089,2026-10-02 12:07:03,,Not found,,,"Convincing success screen, no matching credit"
+claim_088,screenshots/claim_088.jpg,fake_app,Nikhil Nair,nikhil10@examplebank,800.00,385188888067,2026-10-02 17:26:11,,Not found,,,"Convincing success screen, no matching credit"
+claim_089,screenshots/claim_089.jpg,fake_app,Diya Patel,diya12@examplebank,800.00,395205852772,2026-10-01 13:15:46,,Not found,,,"Convincing success screen, no matching credit"
+claim_090,screenshots/claim_090.png,fake_app,Harsha Khan,harsha18@examplebank,1000.00,505486874034,2026-10-01 12:12:02,,Not found,,,"Convincing success screen, no matching credit"
+claim_091,screenshots/claim_091.jpg,fake_app,Diya Reddy,diya93@examplebank,800.00,867652775841,2026-10-03 09:51:23,,Not found,,,"Convincing success screen, no matching credit"
+claim_092,screenshots/claim_092.jpg,wrong_payee,Imran Nair,imran20@examplebank,500.00,651154479627,2026-10-05 21:11:34,,Not found,,,Payment went to a different account
+claim_093,screenshots/claim_093.jpg,wrong_payee,Diya Gupta,diya15@examplebank,500.00,216582029702,2026-10-05 14:17:40,,Not found,,,Payment went to a different account
+claim_094,screenshots/claim_094.png,wrong_payee,Diya Nair,diya82@examplebank,300.00,757192856543,2026-10-05 10:43:28,,Not found,,,Payment went to a different account
+claim_095,screenshots/claim_095.jpg,wrong_payee,Rohan Reddy,rohan33@examplebank,500.00,344739473121,2026-10-05 14:58:35,,Not found,,,Payment went to a different account
+claim_096,screenshots/claim_096.png,wrong_payee,Sneha Khan,sneha66@examplebank,300.00,718844225831,2026-10-06 21:20:42,,Not found,,,Payment went to a different account
+claim_097,screenshots/claim_097.jpg,old_screenshot,Sai Gupta,sai13@examplebank,300.00,778291146786,2026-09-21 16:15:00,,Can't verify yet,,,"Older payment, before the statement period (confirm expected label with Alizah)"
+claim_098,screenshots/claim_098.png,old_screenshot,Faizan Nair,faizan83@examplebank,300.00,717785289226,2026-09-12 10:15:00,,Can't verify yet,,,"Older payment, before the statement period (confirm expected label with Alizah)"
+claim_099,screenshots/claim_099.png,old_screenshot,Isha Reddy,isha25@examplebank,300.00,622535841438,2026-09-26 10:15:00,,Can't verify yet,,,"Older payment, before the statement period (confirm expected label with Alizah)"
+claim_100,screenshots/claim_100.png,old_screenshot,Rahul Khan,rahul90@examplebank,300.00,382992299590,2026-09-19 17:15:00,,Can't verify yet,,,"Older payment, before the statement period (confirm expected label with Alizah)"

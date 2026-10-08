@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timedelta
 from pathlib import Path
 from string import Template
+import shutil
 
 from playwright.sync_api import sync_playwright
 
@@ -151,11 +152,6 @@ rows += [[], [f"Total Debits: Rs. {indian(td)}"], [f"Total Credits: Rs. {indian(
 write_csv("statement_05_indian_junk.csv", rows)
 
 # ---------------------------------------------------------------- claims (genuine only, for Day 1)
-credits = [t for t in txns if t["kind"] == "credit"]
-c300 = [t for t in credits if t["amount"] == 300]
-other = [t for t in credits if t["amount"] != 300]
-claimed = rng.sample(c300, 12) + rng.sample(other, 8)
-rng.shuffle(claimed)
 
 CSS = ("body{margin:0;font-family:'Segoe UI',Arial,sans-serif}.rows{padding:0 22px}"
        ".r{display:flex;justify-content:space-between;gap:16px;padding:12px 0;"
@@ -203,43 +199,134 @@ def when(ts, style):
             ts.strftime("%b %d, %Y at %I:%M %p")][style]
 
 
-truth = []
+# ---------------------------------------------------------------- v2: 100 claims
+def new_person():
+    while True:
+        f, l = rng.choice(FIRST), rng.choice(LAST)
+        if (f, l) not in seen:
+            seen.add((f, l))
+            return f"{f} {l}", f"{f.lower()}{rng.randint(10, 99)}@examplebank"
+
+
+# 5 delayed payments: these credits exist ONLY in a later statement (7 Oct)
+late = []
+for k in range(5):
+    name, upi = new_person()
+    late.append({"kind": "credit", "name": name, "upi": upi, "amount": 300.0,
+                 "ts": datetime(2026, 10, 7, rng.randint(9, 21), rng.randint(0, 59), 0),
+                 "ref": new_ref(), "ref_in_narration": k != 4})
+late.sort(key=lambda t: t["ts"])
+for t in late:
+    bal += t["amount"]
+    t["balance"] = round(bal, 2)
+rows = [["Txn Date", "Details", "Amount", "Running Balance"]]
+for t in late:
+    rows.append([t["ts"].strftime("%Y-%m-%d %H:%M:%S"), narr(3, t), f"{signed(t):.2f}", f"{t['balance']:.2f}"])
+write_csv("statement_06_later.csv", rows)
+
+credits = [t for t in txns if t["kind"] == "credit"]
+rng.shuffle(credits)
+edit_src = [t for t in credits if t["ref_in_narration"]][:10]
+genuine = [t for t in credits if t not in edit_src]  # 50
+
+claims = []
+
+
+def add(cat, name, upi, amount, ts, ref, expected, reason, after="", original="",
+        payee=PAYEE_NAME, payee_upi=PAYEE_UPI, rin="", reuse=""):
+    claims.append({"id": f"claim_{len(claims) + 1:03d}", "cat": cat, "name": name, "upi": upi,
+                   "amount": float(amount), "ts": ts, "ref": ref, "expected": expected, "after": after,
+                   "reason": reason, "original": original, "payee": payee, "payee_upi": payee_upi,
+                   "rin": rin, "reuse": reuse})
+
+
+# genuine (55)
+for t in genuine:
+    add("genuine", t["name"], t["upi"], t["amount"], t["ts"], t["ref"],
+        "Verified" if t["ref_in_narration"] else "Likely match",
+        "Genuine; reference is in the narration" if t["ref_in_narration"]
+        else "Genuine; no reference in narration, must match on amount, time and name",
+        rin=t["ref_in_narration"])
+for t in late:
+    add("genuine_delayed", t["name"], t["upi"], t["amount"], t["ts"], t["ref"], "Can't verify yet",
+        "Genuine payment dated after the first statement ends",
+        after="Verified" if t["ref_in_narration"] else "Likely match", rin=t["ref_in_narration"])
+
+# seeded fakes (45)
+for t in edit_src:  # edited amount (10)
+    add("edited_amount", t["name"], t["upi"], t["amount"] * 10, t["ts"], t["ref"], "Contradicted",
+        f"Reference matches a credit of Rs. {t['amount']:.0f}; screenshot says Rs. {t['amount'] * 10:.0f}", rin=True)
+for g in rng.sample(genuine, 10):  # invented reference (10)
+    name, upi = new_person()
+    add("invented_reference", name, upi, g["amount"], g["ts"] + timedelta(minutes=rng.randint(-20, 20)),
+        new_ref(), "Not found", "Amount and time look right, but the reference is not in the statement")
+src = [c for c in claims if c["cat"] == "genuine" and c["rin"]]
+picks = rng.sample(src, 8)
+for c in picks[:4]:  # same reference, different payer (4)
+    name, upi = new_person()
+    add("duplicate_reference", name, upi, c["amount"], c["ts"], c["ref"], "Duplicate",
+        "Reference already belongs to another claim", original=c["id"])
+for c in picks[4:]:  # identical screenshot reused (4)
+    add("duplicate_image", c["name"], c["upi"], c["amount"], c["ts"], c["ref"], "Duplicate",
+        "Same screenshot submitted twice", original=c["id"], reuse=c["id"], rin=True)
+for _ in range(8):  # fake-app success screen, no matching credit at all (8)
+    name, upi = new_person()
+    add("fake_app", name, upi, rng.choice([250, 450, 800, 1000]), rand_ts(), new_ref(), "Not found",
+        "Convincing success screen, no matching credit")
+for _ in range(5):  # paid to a different account (5)
+    name, upi = new_person()
+    add("wrong_payee", name, upi, rng.choice([300, 500]), rand_ts(), new_ref(), "Not found",
+        "Payment went to a different account", payee="Campus Club Collections", payee_upi="campusclub@examplebank")
+for _ in range(4):  # old genuine screenshot reused, outside the period (4)
+    name, upi = new_person()
+    add("old_screenshot", name, upi, 300, datetime(2026, 9, rng.randint(10, 28), rng.randint(8, 22), 15, 0),
+        new_ref(), "Can't verify yet", "Older payment, before the statement period (confirm expected label with Alizah)")
+
+# ---------------------------------------------------------------- render screenshots
+fnames = {}
 with sync_playwright() as p:
     browser = p.chromium.launch()
     page = browser.new_context(viewport={"width": 390, "height": 780}, device_scale_factor=2).new_page()
-    for i, t in enumerate(claimed, 1):
-        cid = f"claim_{i:03d}"
+    for i, c in enumerate(claims):
+        if c["reuse"]:  # byte-identical copy of an earlier screenshot
+            src_name = fnames[c["reuse"]]
+            fname = f"{c['id']}{Path(src_name).suffix}"
+            shutil.copyfile(SHOTS / src_name, SHOTS / fname)
+            fnames[c["id"]] = fname
+            continue
         use_jpeg = rng.random() < 0.6
-        fname = f"{cid}.{'jpg' if use_jpeg else 'png'}"
-        decoy = "T" + t["ts"].strftime("%y%m%d%H%M") + "".join(rng.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(4))
-        body = Template(VARIANTS[(i - 1) % 4]).substitute(
-            status=rng.choice(STATUSES), amount="&#8377;" + indian(t["amount"]), when=when(t["ts"], rng.randint(0, 2)),
-            payee=PAYEE_NAME, payee_upi=PAYEE_UPI, payer=t["name"], payer_upi=t["upi"],
-            ref_label=rng.choice(REF_LABELS), ref=t["ref"], decoy_label=rng.choice(DECOY_LABELS), decoy=decoy)
+        fname = f"{c['id']}.{'jpg' if use_jpeg else 'png'}"
+        decoy = "T" + c["ts"].strftime("%y%m%d%H%M") + "".join(rng.choice("ABCDEFGHJKLMNPQRSTUVWXYZ23456789") for _ in range(4))
+        body = Template(VARIANTS[i % 4]).substitute(
+            status=rng.choice(STATUSES), amount="&#8377;" + indian(c["amount"]), when=when(c["ts"], rng.randint(0, 2)),
+            payee=c["payee"], payee_upi=c["payee_upi"], payer=c["name"], payer_upi=c["upi"],
+            ref_label=rng.choice(REF_LABELS), ref=c["ref"], decoy_label=rng.choice(DECOY_LABELS), decoy=decoy)
         page.set_content(f"<html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{body}</body></html>")
         if use_jpeg:
             page.screenshot(path=str(SHOTS / fname), type="jpeg", quality=rng.randint(55, 90))
         else:
             page.screenshot(path=str(SHOTS / fname), type="png")
-        expected = "Verified" if t["ref_in_narration"] else "Likely match"
-        truth.append([cid, f"screenshots/{fname}", t["name"], t["upi"], f"{t['amount']:.2f}", t["ref"],
-                      t["ts"].strftime("%Y-%m-%d %H:%M:%S"), t["ref_in_narration"], expected,
-                      "Genuine payment; reference is in the statement narration" if t["ref_in_narration"]
-                      else "Genuine payment; no reference in narration, must match on amount, date and name"])
+        fnames[c["id"]] = fname
     browser.close()
 
+# ---------------------------------------------------------------- ground truth + metadata
+cols = ["claim_id", "file", "category", "payer_name", "payer_upi", "amount", "reference", "timestamp",
+        "reference_in_narration", "expected_verdict", "expected_after_recheck", "original_claim", "reason"]
 with open(OUT / "ground_truth.csv", "w", newline="", encoding="utf-8") as fh:
     w = csv.writer(fh)
-    w.writerow(["claim_id", "file", "payer_name", "payer_upi", "amount", "reference", "timestamp",
-                "reference_in_narration", "expected_verdict", "reason"])
-    w.writerows(truth)
+    w.writerow(cols)
+    for c in claims:
+        w.writerow([c["id"], f"screenshots/{fnames[c['id']]}", c["cat"], c["name"], c["upi"], f"{c['amount']:.2f}",
+                    c["ref"], c["ts"].strftime("%Y-%m-%d %H:%M:%S"), c["rin"], c["expected"], c["after"],
+                    c["original"], c["reason"]])
 
 with open(OUT / "master_payments.json", "w", encoding="utf-8") as fh:
-    json.dump([{**t, "ts": t["ts"].isoformat()} for t in txns], fh, indent=2)
+    json.dump([{**t, "ts": t["ts"].isoformat()} for t in txns + late], fh, indent=2)
 
 with open(OUT / "README.md", "w", encoding="utf-8") as fh:
-    fh.write("# Synthetic data\n\nAll names, UPI IDs, references and screenshots here are randomly generated. "
-             "No real person or account is represented.\n")
+    fh.write("# Synthetic data (EVALUATION USE ONLY)\n\nAll names, UPI IDs, references and screenshots here are "
+             "randomly generated. No real person or account is represented.\n")
 
-print(f"{len(txns)} transactions, 5 statements, {len(claimed)} screenshots written to {OUT}")
-print(f"claims without a reference in the statement narration: {sum(1 for r in truth if r[8] == 'Likely match')}")
+from collections import Counter
+print(f"{len(txns)} transactions (+{len(late)} late), 6 statements, {len(claims)} screenshots written to {OUT}")
+print(dict(Counter(c["cat"] for c in claims)))

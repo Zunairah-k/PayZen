@@ -678,5 +678,55 @@
     "ref": "940164005242",
     "ref_in_narration": true,
     "balance": 78050.0
+  },
+  {
+    "kind": "credit",
+    "name": "Arjun Khan",
+    "upi": "arjun94@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-07T16:14:00",
+    "ref": "358514936899",
+    "ref_in_narration": true,
+    "balance": 78350.0
+  },
+  {
+    "kind": "credit",
+    "name": "Vivaan Das",
+    "upi": "vivaan81@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-07T17:21:00",
+    "ref": "365604945198",
+    "ref_in_narration": true,
+    "balance": 78650.0
+  },
+  {
+    "kind": "credit",
+    "name": "Ananya Nair",
+    "upi": "ananya50@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-07T19:16:00",
+    "ref": "727111161528",
+    "ref_in_narration": true,
+    "balance": 78950.0
+  },
+  {
+    "kind": "credit",
+    "name": "Aarav Das",
+    "upi": "aarav94@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-07T20:17:00",
+    "ref": "224455022961",
+    "ref_in_narration": true,
+    "balance": 79250.0
+  },
+  {
+    "kind": "credit",
+    "name": "Karthik Reddy",
+    "upi": "karthik21@examplebank",
+    "amount": 300.0,
+    "ts": "2026-10-07T20:33:00",
+    "ref": "566752545991",
+    "ref_in_narration": false,
+    "balance": 79550.0
   }
 ]
