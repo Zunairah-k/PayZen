@@ -21,6 +21,7 @@ import hashlib
 import json
 import os
 import re
+import time
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -288,12 +289,12 @@ def heuristic_mapping(columns: Sequence[str], sample_rows: Sequence[Sequence[str
         used.add(date)
 
     # ---- time -------------------------------------------------------------
-    time = best([c for c in by_role.get("time", []) if stats[c].time_frac >= 0.5], lambda c: stats[c].time_frac)
-    if time is None:
-        time = best([c for c in range(ncols) if stats[c].time_frac >= 0.8 and stats[c].date_frac < 0.5],
-                    lambda c: stats[c].time_frac)
-    if time is not None:
-        used.add(time)
+    time_col = best([c for c in by_role.get("time", []) if stats[c].time_frac >= 0.5], lambda c: stats[c].time_frac)
+    if time_col is None:
+        time_col = best([c for c in range(ncols) if stats[c].time_frac >= 0.8 and stats[c].date_frac < 0.5],
+                        lambda c: stats[c].time_frac)
+    if time_col is not None:
+        used.add(time_col)
 
     # ---- direction column -------------------------------------------------
     direction = best([c for c in by_role.get("direction", []) if stats[c].marker_frac >= 0.7], lambda c: stats[c].marker_frac)
@@ -352,7 +353,7 @@ def heuristic_mapping(columns: Sequence[str], sample_rows: Sequence[Sequence[str
         notes.append("Amount has no Dr/Cr marker or direction column; direction taken from the sign.")
 
     return Mapping(
-        date=date, time=time, narration=narration, reference=reference, debit=debit, credit=credit,
+        date=date, time=time_col, narration=narration, reference=reference, debit=debit, credit=credit,
         amount=amount, direction_column=direction, balance=balance, source="heuristic",
         notes=notes, column_names=list(columns),
     )
@@ -396,16 +397,59 @@ def pick_sample_rows(data_rows: Sequence[Sequence[str]], k: int = LLM_SAMPLE_ROW
     return [pool[int(i * step)] for i in range(k)]
 
 
-def default_llm_client():
-    """An Anthropic client if the SDK is installed and ANTHROPIC_API_KEY is set; else None."""
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        return None
-    try:
+_LAST_CALL = [0.0]
+
+
+class _GeminiClient:
+    """Free-tier Gemini via Google AI Studio (GEMINI_API_KEY). Spaces calls out to respect the rate limit."""
+
+    def __init__(self, api_key: str):
+        from google import genai
+        from google.genai import types
+
+        self._client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=30000))
+        self.default_model = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+
+    def complete(self, system: str, user: str, model: str) -> str:
+        from google.genai import types
+
+        wait = float(os.getenv("GEMINI_MIN_INTERVAL", "6.5")) - (time.time() - _LAST_CALL[0])
+        if wait > 0:
+            time.sleep(wait)
+        _LAST_CALL[0] = time.time()
+        resp = self._client.models.generate_content(
+            model=model, contents=user,
+            config=types.GenerateContentConfig(
+                system_instruction=system, temperature=0, max_output_tokens=2000,
+                response_mime_type="application/json"),
+        )
+        return resp.text or ""
+
+
+class _AnthropicClient:
+    def __init__(self):
         import anthropic
 
-        return anthropic.Anthropic(timeout=20.0, max_retries=1)
+        self._c = anthropic.Anthropic(timeout=20.0, max_retries=1)
+        self.default_model = DEFAULT_LLM_MODEL
+
+    def complete(self, system: str, user: str, model: str) -> str:
+        resp = self._c.messages.create(model=model, max_tokens=500, temperature=0, system=system,
+                                       messages=[{"role": "user", "content": user}])
+        return "".join(getattr(b, "text", "") for b in resp.content if getattr(b, "type", "text") == "text")
+
+
+def default_llm_client():
+    """Gemini if GEMINI_API_KEY is set, else Anthropic if ANTHROPIC_API_KEY is set, else None."""
+    try:
+        key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        if key and os.getenv("LLM_PROVIDER", "gemini") == "gemini":
+            return _GeminiClient(key)
+        if os.getenv("ANTHROPIC_API_KEY"):
+            return _AnthropicClient()
     except Exception:
         return None
+    return None
 
 
 def _as_index(v: Any, ncols: int) -> Optional[int]:
@@ -465,8 +509,8 @@ def llm_mapping(
     """
     client = client if client is not None else default_llm_client()
     if client is None:
-        return None, "no language-model client available (set ANTHROPIC_API_KEY)"
-    model = model or os.getenv("INGEST_LLM_MODEL") or DEFAULT_LLM_MODEL
+        return None, "no language-model client available (set GEMINI_API_KEY)"
+    model = model or os.getenv("INGEST_LLM_MODEL") or getattr(client, "default_model", DEFAULT_LLM_MODEL)
     payload = mask_for_llm(columns, sample_rows)
     user_content = json.dumps(payload, ensure_ascii=False)
     if feedback:
@@ -477,15 +521,9 @@ def llm_mapping(
     from_cache = reply_text is not None
     try:
         if reply_text is None:
-            resp = client.messages.create(
-                model=model, max_tokens=500, temperature=0, system=_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": user_content}],
-            )
-            reply_text = "".join(
-                getattr(b, "text", "") for b in getattr(resp, "content", []) if getattr(b, "type", "text") == "text"
-            )
+            reply_text = client.complete(_SYSTEM_PROMPT, user_content, model)
     except Exception as exc:
-        return None, f"language-model call failed ({type(exc).__name__})"
+        return None, f"language-model call failed ({type(exc).__name__}: {str(exc)[:160]})"
     mapping = parse_llm_reply(reply_text or "", columns)
     if mapping is None:
         return None, "language model returned an unusable mapping"

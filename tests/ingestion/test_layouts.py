@@ -74,7 +74,7 @@ def run_all():
             "chain": ch.get("status", "-"),
             "checked": f"{ch.get('passed', 0)}/{ch.get('checked', 0)}" if ch else "-",
             "mapping": rep.mapping_source or "-",
-            "llm_used": bool((rep.llm or {}).get("used")),
+            "llm_used": bool((rep.llm or {}).get("used")) and not (rep.llm or {}).get("error"),
         })
     return results
 

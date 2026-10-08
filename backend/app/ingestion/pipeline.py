@@ -218,7 +218,7 @@ def _run(table: RawTable, llm_policy, llm_client, llm_model, mapping_override) -
                          "No names, amounts, references or account numbers.",
     }
     if llm_policy != "never" and client is None and mapping_override is None:
-        report.llm["note"] = "No language-model client configured (set ANTHROPIC_API_KEY); used the deterministic mapper."
+        report.llm["note"] = "No language-model client configured (set GEMINI_API_KEY); used the deterministic mapper."
 
     # ---- propose + verify -------------------------------------------------------
     if mapping_override is not None:
