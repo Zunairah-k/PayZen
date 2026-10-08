@@ -1,0 +1,5 @@
+condition,samples,statements_read,right_row_count,rows_correct,rows_expected,wrong_amounts,wrong_references,chain_pass,asked_confirm
+clean,3,3,3,45,45,0,0,3,0
+recompressed,3,3,3,45,45,0,0,3,0
+resized,3,3,3,45,45,0,0,3,0
+photographed,3,3,1,15,45,0,0,3,2
