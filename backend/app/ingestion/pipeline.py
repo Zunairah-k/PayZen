@@ -91,6 +91,7 @@ def ingest_statement(
     llm_client: Any = None,
     llm_model: Optional[str] = None,
     mapping_override: Optional[Mapping] = None,
+    password: Optional[str] = None,
 ) -> IngestResult:
     """Read a statement file (path or bytes). See module docstring.
 
@@ -98,9 +99,10 @@ def ingest_statement(
                 'fallback' only when the deterministic mapper is not verified,
                 'never'    fully offline.
     mapping_override: the user's confirmed mapping from the preview screen.
+    password: for encrypted PDFs; used only to open the file, never stored.
     """
     try:
-        table = load_statement(source, filename)
+        table = load_statement(source, filename, password)
     except StatementIngestError as exc:
         return _failure(exc, source_name=filename)
     except Exception as exc:  # pragma: no cover - last line of defence
@@ -132,7 +134,7 @@ def ingest_text(
 
 
 def _failure(exc: StatementIngestError, source_name: Optional[str] = None) -> IngestResult:
-    report = ParseReport(ok=False, source_name=source_name, errors=[exc.message], hint=exc.hint)
+    report = ParseReport(ok=False, source_name=source_name, errors=[exc.message], hint=exc.hint, error_code=exc.code)
     report.user_message = build_user_message(report, None)
     return IngestResult(False, [], None, report)
 

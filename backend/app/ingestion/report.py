@@ -67,6 +67,7 @@ class ParseReport:
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
     hint: Optional[str] = None
+    error_code: Optional[str] = None
     needs_confirmation: bool = False
     parse_confidence: float = 0.0
     user_message: str = ""

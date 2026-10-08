@@ -46,6 +46,7 @@ class Fixture:
     truth: List[Txn]
     has_time: bool = True
     note: str = ""
+    password: Optional[str] = None
 
 
 def build_truth(seed: int = 7, n: int = 80) -> List[Txn]:
@@ -281,7 +282,44 @@ CHAOS_BUILDERS: List[Callable] = [fmt1, fmt2, fmt3, fmt4, fmt5, fmt6, fmt7, fmt8
 EXTRA_BUILDERS: List[Callable] = [fx_inverted_sign, fx_no_balance, fx_headerless, fx_tab_text]
 CHAOS_FIXTURES: List[Fixture] = [b(TRUTH) for b in CHAOS_BUILDERS]
 EXTRA_FIXTURES: List[Fixture] = [b(TRUTH) for b in EXTRA_BUILDERS]
-ALL_FIXTURES: List[Fixture] = CHAOS_FIXTURES + EXTRA_FIXTURES
+def _pdf_bytes(truth, password=None) -> bytes:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=20, rightMargin=20, encrypt=password)
+    data = [["Date", "Narration", "Withdrawals", "Deposits", "Balance"]]
+    for t in truth:
+        data.append([t.dt.strftime("%d/%m/%Y"), narration(t), f2(t.debit), f2(t.credit), f2(t.balance)])
+    tbl = Table(data, repeatRows=1, colWidths=[60, 270, 65, 65, 75])
+    tbl.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+        ("FONTSIZE", (0, 0), (-1, -1), 6),
+        ("LEADING", (0, 0), (-1, -1), 8),
+    ]))
+    doc.build([Paragraph("Sample Bank Statement", getSampleStyleSheet()["Title"]), tbl])
+    return buf.getvalue()
+
+
+def fmt12(truth):  # text PDF, table spans several pages with a repeated header
+    return Fixture("12_text_pdf_page_breaks", "stmt12.pdf", _pdf_bytes(truth), truth, has_time=False)
+
+
+def fmt13(truth):  # same, password protected
+    return Fixture("13_text_pdf_password", "stmt13.pdf", _pdf_bytes(truth, "demo-pass-123"), truth,
+                   has_time=False, password="demo-pass-123")
+
+
+try:
+    import reportlab  # noqa: F401
+
+    PDF_FIXTURES: List[Fixture] = [fmt12(TRUTH), fmt13(TRUTH)]
+except ImportError:  # pragma: no cover
+    PDF_FIXTURES = []
+
+ALL_FIXTURES: List[Fixture] = CHAOS_FIXTURES + EXTRA_FIXTURES + PDF_FIXTURES
 
 
 def expected_reference(fx: Fixture, t: Txn, index: int) -> Optional[str]:

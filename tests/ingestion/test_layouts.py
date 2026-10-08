@@ -24,7 +24,7 @@ POLICY = os.getenv("INGEST_TEST_POLICY", "never")
 
 
 def check(fx: Fixture):
-    res = ingest_statement(fx.data, fx.filename, llm_policy=POLICY)
+    res = ingest_statement(fx.data, fx.filename, llm_policy=POLICY, password=fx.password)
     if not res.ok:
         return res, [f"ingest failed: {res.report.user_message}"]
     rows, truth = res.rows, fx.truth
