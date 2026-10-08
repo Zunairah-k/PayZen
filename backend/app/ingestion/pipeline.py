@@ -261,6 +261,7 @@ def _run(table: RawTable, llm_policy, llm_client, llm_model, mapping_override) -
         report.mapping_summary = fallback.describe()
         report.mapping_source = fallback.source
         report.needs_confirmation = True
+        report.error_code = "columns_unclear"
         report.errors.append("Could not identify the date and amount columns in this file.")
         report.hint = "Choose which column is the date, the debit/credit (or amount) and the balance."
         report.user_message = build_user_message(report, None)

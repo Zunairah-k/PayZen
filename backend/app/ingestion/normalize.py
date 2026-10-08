@@ -70,6 +70,10 @@ def marker_from_word(text: object) -> Optional[str]:
     return None
 
 
+_GROUPED_RE = re.compile(r"^(?:\d{1,3}(?:,\d{2})*,\d{3}|\d{1,3}(?:,\d{3})+)$")  # 1,50,000 or 150,000
+_SLASH_DASH_RE = re.compile(r"/[-=]\s*(?=\)?$)")  # Indian "500/-"
+
+
 def _normalise_separators(s: str) -> str:
     """Resolve thousands vs decimal separators.
 
@@ -77,16 +81,18 @@ def _normalise_separators(s: str) -> str:
     '1.234,56'    -> '1234.56'      (European: last separator is the decimal)
     '1234,56'     -> '1234.56'      (single comma + 1-2 digits = decimal comma)
     '1,500'       -> '1500'         (single comma + 3 digits = thousands)
+    '1,2,3'       -> '?'            (commas that are not valid grouping are NOT guessed)
     """
     if "," in s and "." in s:
         if s.rfind(",") > s.rfind("."):
             return s.replace(".", "").replace(",", ".")
-        return s.replace(",", "")
+        head = s[: s.rfind(".")]
+        return s.replace(",", "") if _GROUPED_RE.match(head) else "?"
     if "," in s:
         head, _, tail = s.rpartition(",")
         if s.count(",") == 1 and len(tail) in (1, 2):
             return f"{head}.{tail}"
-        return s.replace(",", "")
+        return s.replace(",", "") if _GROUPED_RE.match(s) else "?"
     if s.count(".") > 1:
         return s.replace(".", "")
     return s
@@ -118,6 +124,7 @@ def parse_amount(text: object) -> AmountParse:
             s = s[m.end():].strip()
 
     s = _CURRENCY_RE.sub("", s).strip()
+    s = _SLASH_DASH_RE.sub("", s).strip()
     negative = False
     if s.startswith("(") and s.endswith(")"):
         negative = True
@@ -181,6 +188,7 @@ _TIME_TAIL_RE = re.compile(
 _TIME_ONLY_RE = re.compile(
     r"^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?\s*([AaPp]\.?[Mm]\.?)?\s*(?:Z|UTC|IST|[+-]\d{2}:?\d{2})?$"
 )
+_WEEKDAY_RE = re.compile(r"(?i)^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+")
 _NUM_DATE_RE = re.compile(r"^(\d{1,4})[/\-.](\d{1,2})[/\-.](\d{2,4})$")
 _NAME_DATE_DMY_RE = re.compile(
     r"^(\d{1,2})(?:st|nd|rd|th)?[\s\-/.,]*([A-Za-z]{3,9})\.?[\s\-/.,]*(\d{2,4})$"
@@ -264,6 +272,7 @@ def parse_datetime_cell(text: object, order: str = "dmy") -> Tuple[Optional[dt.d
     s = clean_cell(text)
     if not s:
         return None, False
+    s = _WEEKDAY_RE.sub("", s)
     date_text, t = _split_time(s)
     d = _parse_date_part(date_text, order)
     if d is None:
