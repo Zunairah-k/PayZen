@@ -6,6 +6,7 @@ import UploadPanel from "./components/UploadPanel";
 import SummaryBar from "./components/SummaryBar";
 import ResultsTable from "./components/ResultsTable";
 import ReasonDrawer from "./components/ReasonDrawer";
+import { sampleClaims, sampleRows, sampleMeta, sampleVerdicts } from "./sampleData";
 
 export default function App() {
   const [claimFiles, setClaimFiles] = useState<File[]>([]);
@@ -17,8 +18,14 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSample, setIsSample] = useState(false);
+
+  function loadSample() {
+  setClaims(sampleClaims); setRows(sampleRows); setMeta(sampleMeta); setVerdicts(sampleVerdicts);
+  setSelectedId(null); setError(null); setIsSample(true);}
 
   async function run() {
+    setIsSample(false);
     if (!statementFile || claimFiles.length === 0) return;
     setLoading(true);
     setError(null);
@@ -61,6 +68,9 @@ export default function App() {
         {loading ? "Verifying..." : "Verify payments"}
       </button>
       {error && <p className="error">{error}</p>}
+
+      <button className="run secondary" onClick={loadSample}>Try sample data</button>
+      {isSample && <p className="muted">Showing built-in demo data, not your files.</p>}
 
       {meta && (
         <p className="muted">

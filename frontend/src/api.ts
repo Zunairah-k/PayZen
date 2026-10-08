@@ -25,5 +25,6 @@ export async function verify(claims: Claim[], rows: StatementRow[], meta: Statem
     body: JSON.stringify({ claims, rows, meta }),
   });
   if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  const data = await r.json();
+  return Array.isArray(data) ? data : (data.verdicts ?? []);
 }
