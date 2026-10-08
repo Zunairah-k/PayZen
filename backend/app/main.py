@@ -7,6 +7,14 @@ from app.services.extractor import extract_claim
 from app.services.ingestor import ingest_statement_full
 from app.services.matcher import match_claims
 from app.services.reply_generator import attach_replies
+from pydantic import BaseModel
+from app.services.rechecker import recheck_claims
+
+class RecheckRequest(BaseModel):
+    claims: List[Claim]
+    rows: list            # use the same StatementRow type as VerifyRequest
+    meta: dict            # same type as VerifyRequest.meta
+    previous_verdicts: List[Verdict]
 
 app = FastAPI(title="PayZen API")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
@@ -30,3 +38,7 @@ async def statement_upload(file: UploadFile = File(...), password: Optional[str]
 @app.post("/verify", response_model=List[Verdict])
 def verify_endpoint(req: VerifyRequest):
     return attach_replies(match_claims(req.claims, req.rows, req.meta))
+
+@app.post("/recheck", response_model=List[Verdict])
+def recheck_endpoint(req: RecheckRequest):
+    return recheck_claims(req.claims, req.rows, req.meta, previous_verdicts=req.previous_verdicts)

@@ -28,4 +28,21 @@ header p { margin: 4px 0 16px; color: #555; }
 .reply { background: #f6f8fb; padding: 10px; border-radius: 6px; font-size: 13px; }
 .disclaimer { margin-top: 18px; font-size: 12px; color: #777; }
 .run.secondary { background: #1b2f4b; margin-left: 8px; }
+.reason-card { position: fixed; top: 0; right: 0; width: 380px; max-width: 100%; height: 100%; overflow-y: auto;
+  background: #fff; box-shadow: -4px 0 20px rgba(0,0,0,.15); padding: 20px; z-index: 10; }
+.reason-card .close { float: right; border: 0; background: none; font-size: 24px; cursor: pointer; }
+.reason-card h4 { margin: 16px 0 4px; }
+.conf .bar { height: 8px; background: #e5e9f0; border-radius: 4px; margin-top: 4px; }
+.conf .fill { height: 100%; background: #1b2f4b; border-radius: 4px; }
+.diffs li { color: #b45309; }
+.followup { background: #eef1f6; border-left: 4px solid #6b7a99; padding: 8px 12px; margin-top: 12px; border-radius: 4px; }
+.reply { background: #f5f7fa; padding: 10px; border-radius: 6px; }
+.footer { margin: 32px 0 16px; font-size: 13px; }
+.edit-claim { background: #fff7ed; border-left: 4px solid #d97706; padding: 10px 12px; border-radius: 4px; margin-top: 12px; }
+.edit-claim label { display: block; margin: 8px 0; font-size: 14px; }
+.edit-claim input { display: block; width: 100%; padding: 6px 8px; margin-top: 2px; box-sizing: border-box; }
+.recheck { background: #eef1f6; border-left: 4px solid #6b7a99; padding: 10px 14px; border-radius: 4px; margin: 16px 0; }
+.recheck p { margin: 4px 0 8px; }
+.changes { background: #ecfdf3; border-left: 4px solid #1f8a4c; padding: 10px 14px; border-radius: 4px; margin: 16px 0; }
+.changes ul { margin: 6px 0 0; }
 @media (max-width: 640px) { .upload-panel { grid-template-columns: 1fr; } .money-cards { grid-template-columns: repeat(2, 1fr); } }

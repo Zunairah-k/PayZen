@@ -28,3 +28,17 @@ export const sampleVerdicts: Verdict[] = [
   { claim_id: "demo_5", status: "Duplicate", confidence: 0.9, reasons: ["Same reference 718420365194 was already used by another claim (Aarav Reddy)"], field_differences: {}, suggested_reply: "This payment reference was also submitted for another registration. Please share your own transaction details." },
   { claim_id: "demo_6", status: "Can't verify yet", confidence: 0.5, reasons: ["Claim time is after the end of the statement period"], field_differences: {}, follow_up_after: "2026-10-08T09:40:00", suggested_reply: "Thanks, your details are received. Our statement does not yet cover that time, so we will confirm after the next update." },
 ];
+
+// Newer statement used by the sample re-check demo
+export const sampleNewerRows: StatementRow[] = [
+  { row_id: "n1", datetime: "2026-10-08T09:41:00", narration: "UPI/CR/906315472810/PRIYA SHARMA", credit: 600, extracted_reference: "906315472810", name_hint: "PRIYA SHARMA" },
+];
+
+export const sampleNewerMeta: StatementMeta = {
+  coverage_start: "2026-10-08", coverage_end: "2026-10-09",
+  mapping_used: {}, balance_chain_result: "passed (demo data)", parse_confidence: 1, row_count: 1, warnings: [],
+};
+
+export const sampleRecheckVerdicts: Verdict[] = [
+  { claim_id: "demo_6", status: "Verified", tier: 1, matched_row_id: "n1", confidence: 0.97, reasons: ["Reference matched exactly in the newer statement", "Amount matched", "Time within window"], field_differences: {}, suggested_reply: "Thanks, we confirmed your payment of Rs. 600 (reference 906315472810)." },
+];

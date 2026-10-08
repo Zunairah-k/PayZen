@@ -28,3 +28,17 @@ export async function verify(claims: Claim[], rows: StatementRow[], meta: Statem
   const data = await r.json();
   return Array.isArray(data) ? data : (data.verdicts ?? []);
 }
+
+export async function recheck(
+  claims: Claim[], rows: StatementRow[], meta: StatementMeta, previous: Verdict[]
+): Promise<Verdict[] | null> {
+  const r = await fetch(`${BASE}/recheck`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ claims, rows, meta, previous_verdicts: previous }),
+  });
+  if (r.status === 404) return null; // endpoint not wired yet
+  if (!r.ok) throw new Error(await r.text());
+  const data = await r.json();
+  return Array.isArray(data) ? data : (data.verdicts ?? []);
+}
