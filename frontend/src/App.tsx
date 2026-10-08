@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 import type { Claim, StatementMeta, StatementRow, Verdict } from "./types";
-import { uploadClaims, uploadStatement, verify, recheck } from "./api";
+import {
+  uploadClaims, uploadStatement, verify, recheck,
+  type IngestOpts, type Preview, type StatementResult,
+} from "./api";
 import UploadPanel from "./components/UploadPanel";
 import SummaryBar from "./components/SummaryBar";
 import ResultsTable from "./components/ResultsTable";
+import StatementPrompt from "./components/StatementPrompt";
 import ReasonCard from "./ReasonCard";
+import IntakePanel from "./components/IntakePanel";
 import { exportReconciliation } from "./exportCsv";
 import {
   sampleClaims, sampleRows, sampleMeta, sampleVerdicts,
@@ -26,6 +31,13 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSample, setIsSample] = useState(false);
 
+  // statement preview (green tick / one question / password / consent)
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [pending, setPending] = useState<{ claims: Claim[]; s: StatementResult } | null>(null);
+  const ingestOpts = useRef<IngestOpts>({});
+  // avoid re-extracting screenshots (and re-calling the vision model) when only a password/consent is needed
+  const claimCache = useRef<{ key: string; claims: Claim[] } | null>(null);
+
   // re-check state
   const [newRows, setNewRows] = useState<StatementRow[]>([]);
   const [recheckedIds, setRecheckedIds] = useState<string[]>([]);
@@ -37,6 +49,13 @@ export default function App() {
     setChanges([]);
   }
 
+  function pickStatement(f: File) {
+    setStatementFile(f);
+    ingestOpts.current = {};
+    setPreview(null);
+    setPending(null);
+  }
+
   function loadSample() {
     setClaims(sampleClaims);
     setRows(sampleRows);
@@ -44,26 +63,61 @@ export default function App() {
     setVerdicts(sampleVerdicts);
     setSelectedId(null);
     setError(null);
+    setPreview(null);
+    setPending(null);
     setIsSample(true);
     resetRecheck();
   }
 
-  async function run() {
+  async function finish(c: Claim[], s: StatementResult) {
+    const v = await verify(c, s.rows, s.meta);
+    setClaims(c);
+    setRows(s.rows);
+    setMeta(s.meta);
+    setVerdicts(v);
+    setPending(null);
+    ingestOpts.current = {}; // the password is never kept after use
+  }
+
+  async function run(extra: IngestOpts = {}) {
     setIsSample(false);
     if (!statementFile || claimFiles.length === 0) return;
+    ingestOpts.current = { ...ingestOpts.current, ...extra };
     setLoading(true);
     setError(null);
     setVerdicts([]);
     setSelectedId(null);
+    setPending(null);
     resetRecheck();
     try {
-      const c = await uploadClaims(claimFiles);
-      const s = await uploadStatement(statementFile);
-      const v = await verify(c, s.rows, s.meta);
-      setClaims(c);
-      setRows(s.rows);
-      setMeta(s.meta);
-      setVerdicts(v);
+      const key = claimFiles.map((f) => `${f.name}:${f.size}:${f.lastModified}`).join("|");
+      let c = claimCache.current?.key === key ? claimCache.current.claims : null;
+      if (!c) {
+        c = await uploadClaims(claimFiles);
+        claimCache.current = { key, claims: c };
+      }
+      const s = await uploadStatement(statementFile, ingestOpts.current);
+      setPreview(s.preview);
+      if (s.preview?.status === "failed") return;          // prompt shows what is needed
+      if (s.preview?.status === "check") {                  // ask ONE question, then continue
+        setPending({ claims: c, s });
+        return;
+      }
+      await finish(c, s);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function confirmRead() {
+    if (!pending) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await finish(pending.claims, pending.s);
+      setPreview((p) => (p ? { ...p, status: "ok", question: null, headline: "Statement read (confirmed by you)" } : p));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -124,12 +178,15 @@ export default function App() {
     setError(null);
     try {
       const s = await uploadStatement(file);
+      if (s.preview?.status === "failed") {
+        throw new Error(`${s.preview.headline}. ${s.preview.action_text ?? ""}`.trim());
+      }
       // preferred: backend rechecker (protects already-verified credits)
       let fresh = await recheck(claims, s.rows, s.meta, verdicts);
       if (fresh === null) {
         // fallback until /recheck exists: re-run only the pending claims
-        const pending = claims.filter((c) => pendingIds.includes(c.claim_id));
-        fresh = await verify(pending, s.rows, s.meta);
+        const todo = claims.filter((c) => pendingIds.includes(c.claim_id));
+        fresh = await verify(todo, s.rows, s.meta);
       }
       applyRecheck(fresh, s.rows, s.meta);
     } catch (e) {
@@ -161,13 +218,13 @@ export default function App() {
         claimFiles={claimFiles}
         statementFile={statementFile}
         onClaimFiles={setClaimFiles}
-        onStatementFile={setStatementFile}
+        onStatementFile={pickStatement}
       />
 
       <button
         className="run"
         disabled={loading || !statementFile || claimFiles.length === 0}
-        onClick={run}
+        onClick={() => run()}
       >
         {loading ? "Verifying..." : "Verify payments"}
       </button>
@@ -182,6 +239,16 @@ export default function App() {
 
       {error && <p className="error">{error}</p>}
       {isSample && <p className="muted">Showing built-in demo data, not your files.</p>}
+
+      {preview && (
+        <StatementPrompt
+          preview={preview}
+          busy={loading}
+          onPassword={(pw) => run({ password: pw })}
+          onConsent={() => run({ allowVision: true })}
+          onContinue={confirmRead}
+        />
+      )}
 
       {meta && (
         <p className="muted">
@@ -254,7 +321,8 @@ export default function App() {
           onClose={() => setSelectedId(null)}
         />
       )}
-
+      <IntakePanel />
+      
       <footer className="muted footer">
         Decision support. Confirm in your own bank app before acting on high-value payments.
         Files are processed in memory and not stored.
