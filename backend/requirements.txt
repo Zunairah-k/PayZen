@@ -21,4 +21,5 @@ openpyxl
 google-genai==2.29.0
 pdfplumber
 Pillow
-httpxsegno
+httpx
+segno
