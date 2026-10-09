@@ -8,6 +8,11 @@ from fastapi import APIRouter, HTTPException
 
 from .client import AgentboxdError
 from .service import IntakeService
+from concurrent.futures import ThreadPoolExecutor
+
+from fastapi import File, UploadFile
+
+from .zip_intake import DEFAULT_MAX_IMAGES, extract_images
 
 router = APIRouter(prefix="/intake", tags=["secure email intake"])
 _service: Optional[IntakeService] = None
@@ -44,3 +49,27 @@ def messages():
 @router.get("/alerts")
 def alerts():
     return {"data": get_service().alerts()}
+
+@router.post("/whatsapp-zip")
+def whatsapp_zip(file: UploadFile = File(...), max_images: int = DEFAULT_MAX_IMAGES):
+    """Upload a chat export ZIP; every picture inside is read like a normal screenshot upload. Returns claims."""
+    from ..services.extractor import extract_claim  # the same extractor the normal upload uses
+
+    try:
+        images, warnings = extract_images(file.file.read(), max_images=max(1, min(max_images, 60)))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    def read(img):
+        try:
+            claim = extract_claim(img["bytes"], img["filename"])
+            dump = claim.model_dump() if hasattr(claim, "model_dump") else claim.dict()
+            return {"filename": img["filename"], "sender": img.get("sender"), "when": img.get("when"),
+                    "claim": dump, "error": None}
+        except Exception as exc:
+            return {"filename": img["filename"], "sender": img.get("sender"), "when": img.get("when"),
+                    "claim": None, "error": type(exc).__name__}
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(read, images))
+    return {"count": len(results), "claims": results, "warnings": warnings}
