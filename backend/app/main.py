@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import os
 from typing import List, Optional
 
@@ -32,6 +32,20 @@ origins = ["http://localhost:5173"] + [
 ]  # on Render set CORS_ORIGINS=https://your-app.vercel.app
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 app.include_router(intake_router)
+
+
+@app.on_event("startup")
+def _register_agentboxd_screenshot_handler():
+    """Register PayZen's screenshot extractor with secure email intake."""
+    import logging
+    from app.services.intake_handler import register_screenshot_handler
+
+    if not register_screenshot_handler():
+        logging.getLogger(__name__).warning(
+            "Agentboxd screenshot handler not registered; check intake configuration."
+        )
+
+
 
 # Once the Gemini vision provider exists, register it ONCE here, e.g.:
 # from app.services.vision_gemini import register_gemini_provider
