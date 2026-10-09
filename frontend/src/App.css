@@ -1,4 +1,4 @@
-.app { max-width: 980px; margin: 0 auto; padding: 24px 16px 80px; font-family: system-ui, sans-serif; color: #1a1a1a; }
+.app { scroll-margin-top: 16px; }
 header h1 { margin: 0; color: #1b2f4b; }
 header p { margin: 4px 0 16px; color: #555; }
 .upload-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -60,4 +60,19 @@ header p { margin: 4px 0 16px; color: #555; }
 .ix-ok { background: #1f8a4c; } .ix-bad { background: #c0392b; } .ix-warn { background: #d97706; }
 .ix-alerts { background: #fef2f2; border-left: 4px solid #c0392b; padding: 8px 14px; margin-top: 12px; border-radius: 4px; }
 .linklike { border: 0; background: none; color: #2b5fd9; cursor: pointer; text-decoration: underline; }
+html { scroll-behavior: smooth; }
+.lk { margin-top: 32px; }
+.lk-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
+.lk-form label { display: grid; gap: 4px; font-size: 14px; }
+.lk-form input { box-sizing: border-box; padding: 8px; width: 100%; }
+.lk-result { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 16px; padding: 16px; background: #f5f7fa; border-radius: 10px; }
+.lk-link { word-break: break-all; font-size: 12px; color: #5b5775; max-width: 520px; }
+.lk-dl { display: inline-block; text-decoration: none; }
+.app { max-width: 1224px; margin: 0 auto; padding: 0 24px 48px; box-sizing: border-box;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1b2f4b; }
+.wa { margin: 16px 0; padding: 12px 16px; background: #f5f7fa; border-radius: 10px; }
+.wa summary { cursor: pointer; font-weight: 600; }
+.wa table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+.wa th, .wa td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e9f0; }
+.wa-used { background: #ecfdf3; border-left: 4px solid #1f8a4c; padding: 8px 14px; border-radius: 4px; margin: 12px 0; }
 @media (max-width: 640px) { .upload-panel { grid-template-columns: 1fr; } .money-cards { grid-template-columns: repeat(2, 1fr); } }

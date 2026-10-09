@@ -5,12 +5,15 @@ import {
   uploadClaims, uploadStatement, verify, recheck,
   type IngestOpts, type Preview, type StatementResult,
 } from "./api";
+import Hero from "./components/Hero";
 import UploadPanel from "./components/UploadPanel";
 import SummaryBar from "./components/SummaryBar";
 import ResultsTable from "./components/ResultsTable";
 import StatementPrompt from "./components/StatementPrompt";
-import ReasonCard from "./ReasonCard";
+import WhatsAppPanel from "./components/WhatsAppPanel";
+import LinksPanel from "./components/LinksPanel";
 import IntakePanel from "./components/IntakePanel";
+import ReasonCard from "./ReasonCard";
 import { exportReconciliation } from "./exportCsv";
 import {
   sampleClaims, sampleRows, sampleMeta, sampleVerdicts,
@@ -21,6 +24,7 @@ type Change = { claim_id: string; from: string; to: string };
 
 export default function App() {
   const [claimFiles, setClaimFiles] = useState<File[]>([]);
+  const [extraClaims, setExtraClaims] = useState<Claim[]>([]); // claims read from a WhatsApp export
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [rows, setRows] = useState<StatementRow[]>([]);
@@ -81,7 +85,7 @@ export default function App() {
 
   async function run(extra: IngestOpts = {}) {
     setIsSample(false);
-    if (!statementFile || claimFiles.length === 0) return;
+    if (!statementFile || (claimFiles.length === 0 && extraClaims.length === 0)) return;
     ingestOpts.current = { ...ingestOpts.current, ...extra };
     setLoading(true);
     setError(null);
@@ -91,15 +95,16 @@ export default function App() {
     resetRecheck();
     try {
       const key = claimFiles.map((f) => `${f.name}:${f.size}:${f.lastModified}`).join("|");
-      let c = claimCache.current?.key === key ? claimCache.current.claims : null;
-      if (!c) {
-        c = await uploadClaims(claimFiles);
-        claimCache.current = { key, claims: c };
+      let fileClaims = claimCache.current?.key === key ? claimCache.current.claims : null;
+      if (!fileClaims) {
+        fileClaims = claimFiles.length > 0 ? await uploadClaims(claimFiles) : [];
+        claimCache.current = { key, claims: fileClaims };
       }
+      const c = [...fileClaims, ...extraClaims];
       const s = await uploadStatement(statementFile, ingestOpts.current);
       setPreview(s.preview);
-      if (s.preview?.status === "failed") return;          // prompt shows what is needed
-      if (s.preview?.status === "check") {                  // ask ONE question, then continue
+      if (s.preview?.status === "failed") return; // prompt shows what is needed
+      if (s.preview?.status === "check") {         // ask ONE question, then continue
         setPending({ claims: c, s });
         return;
       }
@@ -184,7 +189,7 @@ export default function App() {
       // preferred: backend rechecker (protects already-verified credits)
       let fresh = await recheck(claims, s.rows, s.meta, verdicts);
       if (fresh === null) {
-        // fallback until /recheck exists: re-run only the pending claims
+        // fallback if /recheck is not available: re-run only the pending claims
         const todo = claims.filter((c) => pendingIds.includes(c.claim_id));
         fresh = await verify(todo, s.rows, s.meta);
       }
@@ -206,127 +211,138 @@ export default function App() {
       : rows.find((r) => r.row_id === matchedId);
 
   const nameOf = (id: string) => claims.find((c) => c.claim_id === id)?.payer_name ?? id;
+  const hasClaims = claimFiles.length > 0 || extraClaims.length > 0;
 
   return (
-    <div className="app">
-      <header>
-        <h1>PayZen</h1>
-        <p>Check payment screenshots against your own bank statement.</p>
-      </header>
+    <>
+      <Hero />
+      <div className="app" id="verify">
+        <h2>Verify your payments</h2>
 
-      <UploadPanel
-        claimFiles={claimFiles}
-        statementFile={statementFile}
-        onClaimFiles={setClaimFiles}
-        onStatementFile={pickStatement}
-      />
-
-      <button
-        className="run"
-        disabled={loading || !statementFile || claimFiles.length === 0}
-        onClick={() => run()}
-      >
-        {loading ? "Verifying..." : "Verify payments"}
-      </button>
-      <button className="run secondary" onClick={loadSample}>
-        Try sample data
-      </button>
-      {verdicts.length > 0 && (
-        <button className="run secondary" onClick={() => exportReconciliation(claims, verdicts)}>
-          Export CSV
-        </button>
-      )}
-
-      {error && <p className="error">{error}</p>}
-      {isSample && <p className="muted">Showing built-in demo data, not your files.</p>}
-
-      {preview && (
-        <StatementPrompt
-          preview={preview}
-          busy={loading}
-          onPassword={(pw) => run({ password: pw })}
-          onConsent={() => run({ allowVision: true })}
-          onContinue={confirmRead}
+        <UploadPanel
+          claimFiles={claimFiles}
+          statementFile={statementFile}
+          onClaimFiles={setClaimFiles}
+          onStatementFile={pickStatement}
         />
-      )}
-
-      {meta && (
-        <p className="muted">
-          Statement understood: {meta.row_count ?? 0} rows, {meta.coverage_start ?? "?"} to{" "}
-          {meta.coverage_end ?? "?"}, balance check: {meta.balance_chain_result ?? "n/a"}
+        <p className="muted small">
+          Screenshots are read by an AI vision model (Google Gemini). Use synthetic or blurred samples. Your
+          statement is processed in memory and not stored.
         </p>
-      )}
 
-      {changes.length > 0 && (
-        <div className="changes">
-          <strong>Re-check complete. {changes.length} claim(s) updated:</strong>
-          <ul>
-            {changes.map((c) => (
-              <li key={c.claim_id}>
-                {nameOf(c.claim_id)}: {c.from} → <strong>{c.to}</strong>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        <WhatsAppPanel onUse={setExtraClaims} />
+        {extraClaims.length > 0 && (
+          <div className="wa-used">
+            {extraClaims.length} claim(s) from your WhatsApp export will be verified together with your uploads.{" "}
+            <button className="linklike" onClick={() => setExtraClaims([])}>Remove</button>
+          </div>
+        )}
 
-      {verdicts.length > 0 && (
-        <>
-          <SummaryBar claims={claims} verdicts={verdicts} />
+        <button className="run" disabled={loading || !statementFile || !hasClaims} onClick={() => run()}>
+          {loading ? "Verifying..." : "Verify payments"}
+        </button>
+        <button className="run secondary" onClick={loadSample}>
+          Try sample data
+        </button>
+        {verdicts.length > 0 && (
+          <button className="run secondary" onClick={() => exportReconciliation(claims, verdicts)}>
+            Export CSV
+          </button>
+        )}
 
-          {pendingIds.length > 0 && (
-            <div className="recheck">
-              <strong>{pendingIds.length} payment(s) can't be verified yet.</strong>
-              <p className="muted">
-                Their time is after your statement ends. Upload a newer statement and only these
-                will be checked again.
-              </p>
-              {isSample ? (
-                <button className="run secondary" onClick={recheckSample}>
-                  Re-check with sample newer statement
-                </button>
-              ) : (
-                <label className="recheck-upload">
-                  Upload newer statement:{" "}
-                  <input
-                    type="file"
-                    disabled={loading}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) recheckReal(f);
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
-              )}
-            </div>
-          )}
+        {error && <p className="error">{error}</p>}
+        {isSample && <p className="muted">Showing built-in demo data, not your files.</p>}
 
-          <ResultsTable
-            claims={claims}
-            verdicts={verdicts}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
+        {preview && (
+          <StatementPrompt
+            preview={preview}
+            busy={loading}
+            onPassword={(pw) => run({ password: pw })}
+            onConsent={() => run({ allowVision: true })}
+            onContinue={confirmRead}
           />
-        </>
-      )}
+        )}
 
-      {selectedVerdict && (
-        <ReasonCard
-          verdict={selectedVerdict}
-          claim={selectedClaim}
-          row={selectedRow}
-          meta={meta}
-          onEdit={handleEdit}
-          onClose={() => setSelectedId(null)}
-        />
-      )}
-      <IntakePanel />
-      
-      <footer className="muted footer">
-        Decision support. Confirm in your own bank app before acting on high-value payments.
-        Files are processed in memory and not stored.
-      </footer>
-    </div>
+        {meta && (
+          <p className="muted">
+            Statement understood: {meta.row_count ?? 0} rows, {meta.coverage_start ?? "?"} to{" "}
+            {meta.coverage_end ?? "?"}, balance check: {meta.balance_chain_result ?? "n/a"}
+          </p>
+        )}
+
+        {changes.length > 0 && (
+          <div className="changes">
+            <strong>Re-check complete. {changes.length} claim(s) updated:</strong>
+            <ul>
+              {changes.map((c) => (
+                <li key={c.claim_id}>
+                  {nameOf(c.claim_id)}: {c.from} → <strong>{c.to}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {verdicts.length > 0 && (
+          <>
+            <SummaryBar claims={claims} verdicts={verdicts} />
+
+            {pendingIds.length > 0 && (
+              <div className="recheck">
+                <strong>{pendingIds.length} payment(s) can't be verified yet.</strong>
+                <p className="muted">
+                  Their time is after your statement ends. Upload a newer statement and only these
+                  will be checked again.
+                </p>
+                {isSample ? (
+                  <button className="run secondary" onClick={recheckSample}>
+                    Re-check with sample newer statement
+                  </button>
+                ) : (
+                  <label className="recheck-upload">
+                    Upload newer statement:{" "}
+                    <input
+                      type="file"
+                      disabled={loading}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) recheckReal(f);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
+            <ResultsTable
+              claims={claims}
+              verdicts={verdicts}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          </>
+        )}
+
+        {selectedVerdict && (
+          <ReasonCard
+            verdict={selectedVerdict}
+            claim={selectedClaim}
+            row={selectedRow}
+            meta={meta}
+            onEdit={handleEdit}
+            onClose={() => setSelectedId(null)}
+          />
+        )}
+
+        <LinksPanel />
+        <IntakePanel />
+
+        <footer className="muted footer">
+          Decision support. Confirm in your own bank app before acting on high-value payments. Statements are
+          processed in memory and not stored; screenshots are read by a vision model (Google Gemini).
+        </footer>
+      </div>
+    </>
   );
 }

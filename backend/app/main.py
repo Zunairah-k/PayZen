@@ -9,6 +9,7 @@ from starlette.concurrency import run_in_threadpool
 
 from app.intake.router import router as intake_router
 from app.models import Claim, StatementMeta, StatementRow, Verdict, VerifyRequest
+from app.payment_links import router as links_router
 from app.services.extractor import extract_claim
 from app.services.ingestor import ingest_statement_full
 from app.services.matcher import match_claims
@@ -32,6 +33,7 @@ origins = ["http://localhost:5173"] + [
 ]  # on Render set CORS_ORIGINS=https://your-app.vercel.app
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 app.include_router(intake_router)
+app.include_router(links_router)
 
 
 @app.on_event("startup")
