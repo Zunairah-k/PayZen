@@ -293,6 +293,3 @@ def test_handler_imports_no_network_ingestion_or_intake_policy_code():
     assert not imported & {"requests", "urllib", "httpx", "http", "socket", "aiohttp", "os"}
     assert ".extractor" in imported                       # the existing extractor is reused
     assert not any("ingestion" in i or "intake" in i for i in imported)   # intake is resolved lazily, not imported
-
-
-
