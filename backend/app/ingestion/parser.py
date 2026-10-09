@@ -97,6 +97,8 @@ def parse_rows(
         return out
 
     out.date_order, out.date_order_status = detect_date_order(_cell(c, mapping.date) for _, c in data_rows)
+    if mapping.date_order in ("dmy", "mdy"):  # the user confirmed the order in the preview
+        out.date_order, out.date_order_status = mapping.date_order, "certain"
     header_norm = [tuple(header_tokens(h)) for h in (header_names or [])]
     footer_started = False
     last: Optional[ParsedRow] = None

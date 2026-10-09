@@ -51,6 +51,7 @@ class ParseReport:
     header_line: Optional[int] = None
     header_synthesized: bool = False
     columns: List[str] = field(default_factory=list)
+    sample_rows: List[List[str]] = field(default_factory=list)
     mapping_summary: List[str] = field(default_factory=list)
     mapping_source: Optional[str] = None
     date_order: Optional[str] = None

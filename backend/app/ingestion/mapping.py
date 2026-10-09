@@ -59,6 +59,7 @@ class Mapping:
     direction_column: Optional[int] = None  # separate Dr/Cr or DEBIT/CREDIT column
     balance: Optional[int] = None
     swap_direction: bool = False  # arithmetic repair: debit <-> credit
+    date_order: Optional[str] = None  # user override from the preview: 'dmy' or 'mdy'
     source: str = "heuristic"  # heuristic | llm | llm_retry | user
     notes: List[str] = field(default_factory=list)
     column_names: List[str] = field(default_factory=list)
@@ -116,7 +117,7 @@ class Mapping:
             "date": self.date, "time": self.time, "narration": list(self.narration),
             "reference": self.reference, "debit": self.debit, "credit": self.credit,
             "amount": self.amount, "direction_column": self.direction_column,
-            "balance": self.balance, "swap_direction": self.swap_direction,
+            "balance": self.balance, "swap_direction": self.swap_direction, "date_order": self.date_order,
             "column_names": {
                 "date": name(self.date), "time": name(self.time),
                 "narration": [name(i) for i in self.narration],
@@ -144,6 +145,7 @@ class Mapping:
             reference=idx("reference"), debit=idx("debit"), credit=idx("credit"),
             amount=idx("amount"), direction_column=idx("direction_column"), balance=idx("balance"),
             swap_direction=bool(data.get("swap_direction", False)),
+            date_order=data.get("date_order") if data.get("date_order") in ("dmy", "mdy") else None,
             source=data.get("source", "user"), column_names=list(column_names or []),
         )
 

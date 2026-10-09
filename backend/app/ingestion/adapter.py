@@ -23,13 +23,13 @@ def _flatten_mapping(mapping_used: Dict[str, Any]) -> Dict[str, str]:
     return out
 
 
-def to_shared(result: IngestResult) -> Tuple[List[SharedRow], SharedMeta]:
+def to_shared(result: IngestResult, prefix: str = "") -> Tuple[List[SharedRow], SharedMeta]:
     """(rows, meta) in the shared models. On failure: no rows and a meta whose warnings carry the message."""
     if not result.ok or result.meta is None:
         return [], SharedMeta(warnings=[result.report.user_message or "The statement could not be read."])
     rows = [
         SharedRow(
-            row_id=r.row_id, datetime=r.datetime.isoformat(), narration=r.narration,
+            row_id=f"{prefix}{r.row_id}", datetime=r.datetime.isoformat(), narration=r.narration,
             debit=_f(r.debit), credit=_f(r.credit), balance=_f(r.balance),
             extracted_reference=r.extracted_reference, name_hint=r.name_hint,
             source_page_or_row=str(r.source_page_or_row) if r.source_page_or_row is not None else None,
