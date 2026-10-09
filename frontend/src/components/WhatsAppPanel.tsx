@@ -45,7 +45,7 @@ export default function WhatsAppPanel({ onUse }: { onUse: (claims: Claim[]) => v
   const usable: Claim[] = (resp?.claims ?? []).filter((i) => i.claim !== null).map((i) => i.claim as Claim);
 
   return (
-    <details className="wa">
+    <details className="wa" open>
       <summary>Have a WhatsApp chat export instead? Upload the .zip</summary>
       <p className="muted small">
         Export the chat with media from WhatsApp and upload the .zip. Pictures in it are read by an AI vision model

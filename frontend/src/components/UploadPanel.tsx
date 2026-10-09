@@ -60,7 +60,9 @@ function DropZone({ title, hint, accept, multiple, files, onFiles, onRemove, onC
           {shown.map((f, i) => (
             <li key={keyOf(f)}>
               {f.name}
-              {onRemove && <button type="button" onClick={() => onRemove(i)} aria-label={`Remove ${f.name}`}>×</button>}
+              {onRemove && (
+                <button type="button" onClick={() => onRemove(i)} aria-label={`Remove ${f.name}`}>×</button>
+              )}
             </li>
           ))}
           {files.length > shown.length && <li>+{files.length - shown.length} more</li>}
@@ -80,29 +82,36 @@ interface Props {
   statementFile: File | null;
   onClaimFiles: (f: File[]) => void;
   onStatementFile: (f: File) => void;
+  show?: "claims" | "statement" | "both";
 }
 
-export default function UploadPanel({ claimFiles, statementFile, onClaimFiles, onStatementFile }: Props) {
+export default function UploadPanel({
+  claimFiles, statementFile, onClaimFiles, onStatementFile, show = "both",
+}: Props) {
   return (
     <div className="upload-panel">
-      <DropZone
-        title="1. Payment screenshots"
-        hint="Drop or click to add the screenshots people sent you (you can add more than once)"
-        accept="image/*"
-        multiple
-        files={claimFiles}
-        onFiles={(added) => onClaimFiles(merge(claimFiles, added))}
-        onRemove={(i) => onClaimFiles(claimFiles.filter((_, idx) => idx !== i))}
-        onClear={() => onClaimFiles([])}
-      />
-      <DropZone
-        title="2. Your bank statement"
-        hint="CSV, XLSX, PDF, text or a photo. Any format."
-        accept=".csv,.xlsx,.xls,.pdf,.txt,image/*"
-        multiple={false}
-        files={statementFile ? [statementFile] : []}
-        onFiles={(f) => onStatementFile(f[0])}
-      />
+      {show !== "statement" && (
+        <DropZone
+          title="Payment screenshots"
+          hint="Drop or click to add the screenshots people sent you (you can add more than once)"
+          accept="image/*"
+          multiple
+          files={claimFiles}
+          onFiles={(added) => onClaimFiles(merge(claimFiles, added))}
+          onRemove={(i) => onClaimFiles(claimFiles.filter((_, idx) => idx !== i))}
+          onClear={() => onClaimFiles([])}
+        />
+      )}
+      {show !== "claims" && (
+        <DropZone
+          title="Your bank statement"
+          hint="CSV, XLSX, PDF, text or a photo. Any format."
+          accept=".csv,.xlsx,.xls,.pdf,.txt,image/*"
+          multiple={false}
+          files={statementFile ? [statementFile] : []}
+          onFiles={(f) => onStatementFile(f[0])}
+        />
+      )}
     </div>
   );
 }

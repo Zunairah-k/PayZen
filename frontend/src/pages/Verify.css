@@ -112,6 +112,33 @@
   outline: 3px solid var(--violet); outline-offset: 3px;
 }
 
+/* section headings */
+.vp .vp-h { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; font-size: 24px; letter-spacing: -0.02em; font-weight: 800; }
+.vp .vp-h span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--violet); color: #fff; font-size: 15px; }
+.vp .vp-card + .vp-card { margin-top: 18px; }
+
+/* tabs */
+.vp .vp-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.vp .vp-tab { border: 1px solid var(--line); background: #fff; color: var(--muted); font: inherit; font-weight: 700; font-size: 14px; padding: 10px 18px; border-radius: 999px; cursor: pointer; }
+.vp .vp-tab.is-on { background: var(--violet); color: #fff; border-color: var(--violet); }
+.vp .vp-tab b { margin-left: 8px; background: rgba(255,255,255,.25); border-radius: 999px; padding: 1px 8px; font-size: 12px; }
+.vp .vp-tab:not(.is-on) b { background: rgba(91,61,245,.12); color: var(--violet); }
+
+/* panels inside a card shouldn't look like cards-in-cards */
+.vp .vp-card .intake, .vp .vp-card .lk { margin-top: 8px; padding: 0; background: none; border: 0; box-shadow: none; }
+
+/* source chip */
+.vp .src-chip { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(91,61,245,.1); color: var(--violet); }
+
+/* why-this-verdict */
+.reason-card .why-lead { margin: 0 0 8px; font-weight: 600; }
+.reason-card .signals { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }
+.reason-card .sig { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.4; }
+.reason-card .sig-dot { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-weight: 800; font-size: 12px; color: #fff; }
+.reason-card .sig-ok .sig-dot { background: #1f8a4c; }
+.reason-card .sig-warn .sig-dot { background: #c77700; }
+.reason-card .sig-info .sig-dot { background: #8a86a6; }
+
 @media (max-width: 640px) {
   .vp-card, .vp .lk, .vp .intake { padding: 18px; border-radius: 20px; }
   .vp-navlink { display: none; }

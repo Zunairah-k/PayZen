@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./Verify.css";
 import type { Claim, StatementMeta, StatementRow, Verdict } from "../types";
 import {
-  uploadClaims, uploadStatement, verify, recheck,
+  uploadClaims, uploadStatement, verify, recheck, fetchEmailClaims,
   type IngestOpts, type Preview, type StatementResult,
 } from "../api";
 import UploadPanel from "../components/UploadPanel";
@@ -14,7 +14,6 @@ import WhatsAppPanel from "../components/WhatsAppPanel";
 import LinksPanel from "../components/LinksPanel";
 import IntakePanel from "../components/IntakePanel";
 import ReasonCard from "../ReasonCard";
-import { fetchEmailClaims } from "../api";
 import { exportReconciliation } from "../exportCsv";
 import {
   sampleClaims, sampleRows, sampleMeta, sampleVerdicts,
@@ -22,10 +21,16 @@ import {
 } from "../sampleData";
 
 type Change = { claim_id: string; from: string; to: string };
+type Tab = "upload" | "whatsapp" | "email";
+
+const mergeClaims = (prev: Claim[], got: Claim[]) => {
+  const ids = new Set(prev.map((c) => c.claim_id));
+  return [...prev, ...got.filter((c) => !ids.has(c.claim_id))];
+};
 
 export default function VerifyPage() {
   const [claimFiles, setClaimFiles] = useState<File[]>([]);
-  const [extraClaims, setExtraClaims] = useState<Claim[]>([]); // claims read from a WhatsApp export
+  const [extraClaims, setExtraClaims] = useState<Claim[]>([]); // claims read from WhatsApp or email
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [rows, setRows] = useState<StatementRow[]>([]);
@@ -35,6 +40,11 @@ export default function VerifyPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSample, setIsSample] = useState(false);
+
+  // which door each extra claim came through
+  const [tab, setTab] = useState<Tab>("upload");
+  const [waIds, setWaIds] = useState<string[]>([]);
+  const [emailIds, setEmailIds] = useState<string[]>([]);
 
   // statement preview (green tick / one question / password / consent)
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -47,6 +57,8 @@ export default function VerifyPage() {
   const [newRows, setNewRows] = useState<StatementRow[]>([]);
   const [recheckedIds, setRecheckedIds] = useState<string[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
+
+  const sourceOf = (id: string) => (emailIds.includes(id) ? "Email" : waIds.includes(id) ? "WhatsApp" : "Upload");
 
   function resetRecheck() {
     setNewRows([]);
@@ -131,16 +143,30 @@ export default function VerifyPage() {
     }
   }
 
+  function addWhatsApp(got: Claim[]) {
+    setExtraClaims((prev) => mergeClaims(prev, got));
+    setWaIds((prev) => [...new Set([...prev, ...got.map((c) => c.claim_id)])]);
+  }
+
   async function loadEmailClaims() {
-    try {      
+    try {
       setError(null);
       const got = await fetchEmailClaims();
-      if (got.length === 0) { setError("No screenshots from email yet. Send one to the inbox and press Check inbox first."); return; }
-      setExtraClaims((prev) => {
-        const ids = new Set(prev.map((c) => c.claim_id));
-        return [...prev, ...got.filter((c) => !ids.has(c.claim_id))];
-      });
-    } catch (e) { setError(e instanceof Error ? e.message : String(e)); }
+      if (got.length === 0) {
+        setError("No screenshots from email yet. Send one to the inbox and press Check inbox first.");
+        return;
+      }
+      setExtraClaims((prev) => mergeClaims(prev, got));
+      setEmailIds((prev) => [...new Set([...prev, ...got.map((c) => c.claim_id)])]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  function clearExtra() {
+    setExtraClaims([]);
+    setWaIds([]);
+    setEmailIds([]);
   }
 
   async function handleEdit(updated: Claim) {
@@ -224,15 +250,25 @@ export default function VerifyPage() {
       : rows.find((r) => r.row_id === matchedId);
 
   const nameOf = (id: string) => claims.find((c) => c.claim_id === id)?.payer_name ?? id;
+  const labelOf = (id: string) => {
+    const c = claims.find((x) => x.claim_id === id);
+    return c ? `${c.payer_name ?? c.source_file ?? "another claim"} (₹${c.amount})` : id;
+  };
   const hasClaims = claimFiles.length > 0 || extraClaims.length > 0;
 
   // ---- stepper state (display only) ----
   const steps = [
-    { label: "Add screenshots", done: hasClaims },
     { label: "Add your statement", done: statementFile !== null },
+    { label: "Add payment proofs", done: hasClaims },
     { label: "Read the verdicts", done: verdicts.length > 0 },
   ];
   const current = steps.findIndex((s) => !s.done);
+
+  const tabs: [Tab, string, number][] = [
+    ["upload", "Upload screenshots", claimFiles.length],
+    ["whatsapp", "WhatsApp chat", waIds.length],
+    ["email", "Email inbox", emailIds.length],
+  ];
 
   return (
     <div className="vp">
@@ -248,7 +284,7 @@ export default function VerifyPage() {
         <header className="vp-head">
           <h1>Verify your payments</h1>
           <p>
-            Add the screenshots people sent you and your own bank statement. Each payment gets a verdict
+            Add your own bank statement and the payment proofs people sent you. Each payment gets a verdict
             with the evidence behind it.
           </p>
         </header>
@@ -266,34 +302,98 @@ export default function VerifyPage() {
           ))}
         </ol>
 
-        <section className="vp-card" aria-label="Upload">
+        {/* STEP 1: ground truth */}
+        <section className="vp-card" aria-label="Bank statement">
+          <h2 className="vp-h"><span>1</span> Your bank statement</h2>
+          <p className="muted">
+            This is the proof. PayZen checks every screenshot against what actually reached <em>your</em> account.
+          </p>
           <UploadPanel
+            show="statement"
             claimFiles={claimFiles}
             statementFile={statementFile}
             onClaimFiles={setClaimFiles}
             onStatementFile={pickStatement}
           />
-          <p className="muted small">
-            Screenshots are read by an AI vision model (Google Gemini). Use synthetic or blurred samples. Your
-            statement is processed in memory and not stored.
+        </section>
+
+        {/* STEP 2: three doors for proofs */}
+        <section className="vp-card" aria-label="Payment proofs">
+          <h2 className="vp-h"><span>2</span> Add the payment proofs</h2>
+          <p className="muted">
+            Proofs can reach you three ways. All of them are checked against the same statement and shown in one list.
           </p>
 
-          <WhatsAppPanel onUse={setExtraClaims} />
-          <button type="button" className="run secondary" onClick={loadEmailClaims}>Use screenshots from email inbox</button>
+          <div className="vp-tabs" role="tablist">
+            {tabs.map(([k, label, n]) => (
+              <button
+                key={k}
+                type="button"
+                role="tab"
+                aria-selected={tab === k}
+                className={`vp-tab ${tab === k ? "is-on" : ""}`}
+                onClick={() => setTab(k)}
+              >
+                {label}
+                {n > 0 && <b>{n}</b>}
+              </button>
+            ))}
+          </div>
+
+          {tab === "upload" && (
+            <>
+              <p className="muted small">Screenshots saved on your phone or computer.</p>
+              <UploadPanel
+                show="claims"
+                claimFiles={claimFiles}
+                statementFile={statementFile}
+                onClaimFiles={setClaimFiles}
+                onStatementFile={pickStatement}
+              />
+              <p className="muted small">
+                Screenshots are read by an AI vision model (Google Gemini). Use synthetic or blurred samples. Your
+                statement is processed in memory and not stored.
+              </p>
+            </>
+          )}
+
+          {tab === "whatsapp" && (
+            <>
+              <p className="muted small">
+                In WhatsApp: open the chat, then ⋮ → More → Export chat → Include media. Drop the .zip below.
+              </p>
+              <WhatsAppPanel onUse={addWhatsApp} />
+            </>
+          )}
+
+          {tab === "email" && (
+            <>
+              <p className="muted small">
+                Ask payers to email their proof to the address below. Each email is screened before anything is read.
+              </p>
+              <IntakePanel />
+              <button type="button" className="run secondary" onClick={loadEmailClaims}>
+                Use screenshots from email inbox
+              </button>
+            </>
+          )}
+
           {extraClaims.length > 0 && (
             <div className="wa-used">
               {extraClaims.length} claim(s) from WhatsApp or email will be verified together with your uploads.{" "}
-              <button className="linklike" onClick={() => setExtraClaims([])}>Remove</button>
+              <button type="button" className="linklike" onClick={clearExtra}>Remove</button>
             </div>
           )}
+        </section>
 
+        {/* STEP 3: run */}
+        <section className="vp-card" aria-label="Verify">
+          <h2 className="vp-h"><span>3</span> Check them</h2>
           <div className="vp-actions">
             <button className="run" disabled={loading || !statementFile || !hasClaims} onClick={() => run()}>
               {loading ? "Verifying..." : "Verify payments"}
             </button>
-            <button className="run secondary" onClick={loadSample}>
-              Try sample data
-            </button>
+            <button className="run secondary" onClick={loadSample}>Try sample data</button>
             {verdicts.length > 0 && (
               <button className="run secondary" onClick={() => exportReconciliation(claims, verdicts)}>
                 Export CSV
@@ -374,6 +474,7 @@ export default function VerifyPage() {
                 verdicts={verdicts}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
+                sourceOf={sourceOf}
               />
             </div>
           </section>
@@ -381,18 +482,19 @@ export default function VerifyPage() {
 
         {selectedVerdict && (
           <ReasonCard
+            key={selectedVerdict.claim_id}
             verdict={selectedVerdict}
             claim={selectedClaim}
             row={selectedRow}
             meta={meta}
             onEdit={handleEdit}
             onClose={() => setSelectedId(null)}
+            labelOf={labelOf}
           />
         )}
 
-        <section className="vp-more" aria-label="More ways to use PayZen">
+        <section className="vp-more" aria-label="Prevent next time">
           <LinksPanel />
-          <IntakePanel />
         </section>
 
         <footer className="muted footer">
