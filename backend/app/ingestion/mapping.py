@@ -25,6 +25,8 @@ import time
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from fastapi import types
+
 from .normalize import (
     clean_cell,
     header_tokens,
@@ -401,6 +403,15 @@ def pick_sample_rows(data_rows: Sequence[Sequence[str]], k: int = LLM_SAMPLE_ROW
 
 _LAST_CALL = [0.0]
 
+def _retry_busy(call, tries=4):
+    for attempt in range(tries):
+        try:
+            return call()
+        except Exception as exc:
+            if getattr(exc, "code", None) in (429, 500, 502, 503, 504) and attempt < tries - 1:
+                time.sleep(3 * (2 ** attempt))  # 3s, 6s, 12s
+                continue
+            raise
 
 class _GeminiClient:
     """Free-tier Gemini via Google AI Studio (GEMINI_API_KEY). Spaces calls out to respect the rate limit."""
@@ -441,6 +452,11 @@ class _GeminiClient:
             config=types.GenerateContentConfig(
                 temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
         )
+        resp = _retry_busy(lambda: self._client.models.generate_content(
+            model=model, contents=[types.Part.from_bytes(data=image, mime_type=mime), prompt],
+            config=types.GenerateContentConfig(
+                temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
+        ))
         return resp.text or ""
 
 
@@ -454,6 +470,11 @@ class _AnthropicClient:
     def complete(self, system: str, user: str, model: str) -> str:
         resp = self._c.messages.create(model=model, max_tokens=500, temperature=0, system=system,
                                        messages=[{"role": "user", "content": user}])
+        resp = _retry_busy(lambda: self._client.models.generate_content(
+            model=model, contents=[types.Part.from_bytes(data=image, mime_type=mime), prompt],
+            config=types.GenerateContentConfig(
+                temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
+        ))
         return "".join(getattr(b, "text", "") for b in resp.content if getattr(b, "type", "text") == "text")
 
 

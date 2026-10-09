@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./hero.css";
 
 export default function Hero() {
@@ -30,8 +31,13 @@ export default function Hero() {
     <header className="hx">
       <div className="hx-bg" aria-hidden="true" />
       <nav className="hx-nav">
-        <span className="hx-logo">PAYZEN</span>
-        <a className="hx-btn hx-btn-sm" href="#verify">Start verifying →</a>
+        <Link className="hx-logo" to="/">PAYZEN</Link>
+        <div className="hx-nav-r">
+          <a className="hx-navlink" href="#how">How it works</a>
+          <a className="hx-navlink" href="#verdicts">Verdicts</a>
+          <a className="hx-navlink" href="#tested">Tested</a>
+          <Link className="hx-btn hx-btn-sm" to="/verify">Open the app →</Link>
+        </div>
       </nav>
 
       <div className="hx-grid">
@@ -43,7 +49,7 @@ export default function Hero() {
             a confidence level and a polite reply you can send.
           </p>
           <div className="hx-cta">
-            <a className="hx-btn" href="#verify">Verify payments →</a>
+            <Link className="hx-btn" to="/verify">Verify payments →</Link>
             <a className="hx-link" href="#how">See how it works</a>
           </div>
           <ul className="hx-checks">
@@ -84,7 +90,7 @@ export default function Hero() {
           <h3>Matches deterministically</h3>
           <p>Verdicts come from exact, testable rules, not from a model's guess.</p>
           <span className="hx-stat">0 / 45</span>
-          <small>seeded fakes marked Verified (our synthetic test)</small>
+          <small>seeded fakes marked Verified (synthetic test, screenshot reading simulated)</small>
         </article>
         <article className="hx-card">
           <h3>Explains every verdict</h3>

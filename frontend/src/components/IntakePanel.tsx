@@ -21,7 +21,12 @@ function outcomeText(a: IntakeAttachment): string {
     }
     return o.message ?? "could not be read";
   }
-  if (o.ok === true) return "screenshot read";
+  if (o.ok === true) {
+    const r = (o as unknown as { result?: { extracted?: boolean; amount?: number | null; reference?: string | null } }).result;
+    if (r?.extracted === false) return "screenshot received, but no payment details could be read";
+    if (r?.extracted) return `screenshot read: ₹${r.amount ?? "?"}${r.reference ? ` · ref ${r.reference}` : ""} (not verified yet)`;
+    return "screenshot read";
+  }
   if (o.ok === null) return "screenshot received, not read yet";
   return "could not be processed";
 }

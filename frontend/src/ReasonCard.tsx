@@ -58,7 +58,10 @@ export default function ReasonCard({
 
       <div className="conf">
         <span>
-          {verdict.status} · confidence {pct}%
+          {verdict.status} · {pct}%{" "}
+          {verdict.status === "Not found" ? "sure it's missing"
+          : verdict.status === "Contradicted" ? "sure it conflicts"
+          : verdict.status === "Can't verify yet" ? "" : "confidence"}
         </span>
         <div className="bar">
           <div className="fill" style={{ width: `${pct}%` }} />
@@ -85,13 +88,19 @@ export default function ReasonCard({
         </>
       )}
 
-      {row && (
+      {claim && (
         <>
-          <h4>Statement says</h4>
-          <p className="muted">
-            {row.narration} · ₹{row.credit} · {fmtDate(row.datetime)}
-          </p>
+        <h4>Screenshot says</h4>
+        <p className="muted">
+          {claim.reference ?? "no reference"} · ₹{claim.amount} · {fmtDate(claim.timestamp)}
+        </p>
         </>
+      )}
+      <h4>Statement says</h4>
+      {row ? (
+        <p className="muted">{row.narration} · ₹{row.credit} · {fmtDate(row.datetime)}</p>
+      ) : (
+      <p className="muted">No matching credit on the statement.</p>
       )}
 
       {verdict.status === "Can't verify yet" && (

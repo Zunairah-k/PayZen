@@ -7,6 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 
+from pathlib import Path
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")  # backend/.env; does nothing on Render
+except ImportError:
+    pass
+
 from app.intake.router import router as intake_router
 from app.models import Claim, StatementMeta, StatementRow, Verdict, VerifyRequest
 from app.payment_links import router as links_router
@@ -86,3 +93,8 @@ def verify_endpoint(req: VerifyRequest):
 @app.post("/recheck", response_model=List[Verdict])
 def recheck_endpoint(req: RecheckRequest):
     return recheck_claims(req.claims, req.rows, req.meta, previous_verdicts=req.previous_verdicts)
+
+@app.get("/claims/from-email", response_model=List[Claim])
+def claims_from_email():
+    from app.services.intake_handler import get_email_claims
+    return get_email_claims()

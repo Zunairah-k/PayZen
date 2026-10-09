@@ -1,0 +1,118 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;800&display=swap");
+
+/* Everything is scoped under .vp so the old App.css classes keep working for the drawers and panels. */
+.vp {
+  --ink: #14112b; --violet: #5b3df5; --violet2: #7a54ff; --pink: #ff5fc8; --muted: #5b5775;
+  --glass: rgba(255, 255, 255, 0.78); --line: rgba(91, 61, 245, 0.14);
+  min-height: 100vh; color: var(--ink); font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  background:
+    radial-gradient(42% 30% at 88% 4%, rgba(139, 107, 255, 0.38), transparent 70%),
+    radial-gradient(30% 30% at 4% 55%, rgba(255, 95, 200, 0.18), transparent 70%),
+    linear-gradient(160deg, #f6f3ff 0%, #ebe6ff 55%, #f3ecff 100%);
+  background-attachment: fixed;
+}
+.vp * { box-sizing: border-box; }
+
+/* nav */
+.vp-nav {
+  position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center;
+  padding: 14px max(24px, calc((100% - 1120px) / 2));
+  background: rgba(246, 243, 255, 0.78); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line);
+}
+.vp-logo { font-weight: 800; letter-spacing: 0.28em; color: var(--ink); text-decoration: none; }
+.vp-nav-r { display: flex; align-items: center; gap: 20px; }
+.vp-navlink { color: var(--ink); font-weight: 600; font-size: 14px; text-decoration: none; }
+.vp-navlink:hover { text-decoration: underline; text-underline-offset: 5px; }
+.vp-navbtn {
+  border: 1px solid var(--line); background: #fff; color: var(--violet); font: inherit; font-weight: 700;
+  font-size: 14px; padding: 9px 18px; border-radius: 999px; cursor: pointer;
+}
+.vp-navbtn:hover { background: #f3efff; }
+
+.vp-wrap { max-width: 1120px; margin: 0 auto; padding: 36px 24px 56px; }
+.vp-head h1 { margin: 0 0 10px; font-size: clamp(34px, 5vw, 56px); line-height: 1.02; letter-spacing: -0.03em; font-weight: 800; }
+.vp-head p { margin: 0; max-width: 560px; color: var(--muted); font-size: 17px; line-height: 1.55; }
+
+/* progress */
+.vp-steps { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; padding: 0; margin: 26px 0 20px; }
+.vp-step {
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6); border: 1px solid var(--line); font-weight: 600; font-size: 14px; color: var(--muted);
+}
+.vp-stepnum {
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 13px; font-weight: 800;
+  background: rgba(91, 61, 245, 0.1); color: var(--violet);
+}
+.vp-step.is-current { color: var(--ink); background: #fff; border-color: var(--violet); }
+.vp-step.is-current .vp-stepnum { background: var(--violet); color: #fff; }
+.vp-step.is-done { color: var(--ink); }
+.vp-step.is-done .vp-stepnum { background: #1f8a4c; color: #fff; }
+
+/* cards */
+.vp-card {
+  background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.95); border-radius: 26px; padding: 26px;
+  box-shadow: 0 24px 50px rgba(70, 40, 180, 0.12); backdrop-filter: blur(10px);
+}
+.vp-table { padding: 8px 14px; overflow-x: auto; }
+.vp-results { margin-top: 34px; }
+.vp-results h2 { margin: 0 0 14px; font-size: 28px; letter-spacing: -0.02em; font-weight: 800; }
+.vp-more { margin-top: 18px; }
+.vp-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 4px; }
+
+/* upload zones */
+.vp .upload-panel { gap: 16px; }
+.vp .dropzone {
+  border: 2px dashed rgba(91, 61, 245, 0.35); background: rgba(255, 255, 255, 0.65); border-radius: 22px;
+  padding: 34px 18px; transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.vp .dropzone:hover, .vp .dropzone.over { border-color: var(--violet); background: #fff; transform: translateY(-2px); }
+.vp .dropzone strong { font-size: 18px; }
+.vp .dropzone span { color: var(--muted); font-size: 14px; }
+.vp .dropzone em { color: var(--violet); font-style: normal; font-weight: 700; }
+
+/* buttons: legacy .run keeps working */
+.vp .run {
+  margin: 12px 0; padding: 13px 26px; border: 0; border-radius: 999px; font: inherit; font-weight: 700; font-size: 15px;
+  color: #fff; background: linear-gradient(135deg, var(--violet), var(--violet2));
+  box-shadow: 0 12px 28px rgba(91, 61, 245, 0.32); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+}
+.vp .run:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(91, 61, 245, 0.42); }
+.vp .run:disabled { background: #cfcbe3; box-shadow: none; cursor: not-allowed; }
+.vp .run.secondary { margin-left: 0; background: #fff; color: var(--violet); box-shadow: none; border: 1px solid var(--line); }
+.vp .run.secondary:hover:not(:disabled) { background: #f3efff; box-shadow: none; }
+
+/* summary: first card is the one dark card */
+.vp .money-cards { gap: 14px; }
+.vp .money-card {
+  border: 1px solid var(--line); border-top-width: 4px; border-radius: 20px; padding: 16px 18px; background: var(--glass);
+}
+.vp .money-card span { color: var(--muted); font-size: 13px; }
+.vp .money-card strong { font-size: 26px; letter-spacing: -0.02em; }
+.vp .money-card:first-child { background: linear-gradient(160deg, #2a2170, #14112b); color: #fff; border-color: #2a2170; }
+.vp .money-card:first-child span { color: #c9c2ee; }
+.vp .chip { font-weight: 700; padding: 4px 12px; }
+
+/* table */
+.vp .results th { color: var(--muted); font-size: 13px; font-weight: 600; }
+.vp .results tbody tr:hover, .vp .results tr.selected { background: rgba(91, 61, 245, 0.07); }
+
+/* other panels */
+.vp .wa, .vp .recheck, .vp .changes, .vp .wa-used { border-radius: 16px; }
+.vp .wa { background: rgba(91, 61, 245, 0.06); border: 1px solid var(--line); }
+.vp .recheck { background: rgba(255, 255, 255, 0.8); border: 1px solid var(--line); border-left: 4px solid var(--violet); }
+.vp .lk, .vp .intake {
+  margin-top: 20px; padding: 26px; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 26px; box-shadow: 0 24px 50px rgba(70, 40, 180, 0.12);
+}
+.vp .lk h2, .vp .lk h3, .vp .intake h2, .vp .intake h3 { letter-spacing: -0.02em; }
+.vp .muted { color: var(--muted); }
+.vp .footer { margin-top: 36px; }
+
+.vp a:focus-visible, .vp button:focus-visible, .vp input:focus-visible, .vp .dropzone:focus-visible {
+  outline: 3px solid var(--violet); outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .vp-card, .vp .lk, .vp .intake { padding: 18px; border-radius: 20px; }
+  .vp-navlink { display: none; }
+}

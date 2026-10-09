@@ -19,14 +19,19 @@ export default function EditClaim({
 }) {
   const [draft, setDraft] = useState<Claim>(claim);
   const conf = (claim.confidence ?? {}) as Record<string, number>;
-  const low = FIELDS.filter((f) => (conf[f.key] ?? 0) < LOW);
+  const CRITICAL: FieldKey[] = ["reference", "amount", "timestamp"];
+  const low = FIELDS.filter((f) => {
+    const v = claim[f.key];
+    if (v == null || v === "") return CRITICAL.includes(f.key); // payer name absent is fine
+      return (conf[f.key] ?? 0) < LOW;
+  });
   if (low.length === 0) return null;
 
   return (
     <div className="edit-claim">
       <h4>Please check these fields</h4>
       <p className="muted">
-        The screenshot was hard to read here. Fix anything wrong, then re-verify.
+        Some details could not be read with confidence. Fix anything wrong, then re-verify.
       </p>
       {low.map((f) => (
         <label key={f.key}>

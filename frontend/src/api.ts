@@ -76,3 +76,9 @@ export async function recheck(
   const data = await r.json();
   return Array.isArray(data) ? data : (data.verdicts ?? []);
 }
+
+export async function fetchEmailClaims(): Promise<Claim[]> {
+  const r = await fetch(`${BASE}/claims/from-email`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}

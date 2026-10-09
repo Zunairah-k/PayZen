@@ -174,6 +174,13 @@ def _name_tokens(s: Any) -> List[str]:
     t = unicodedata.normalize("NFKC", str(s or "")).casefold()
     return [w for w in re.findall(r"[^\W\d_]+", t) if w not in _TITLES]
 
+def _near_ref(claim_ref, r):
+    for ref in r.refs:
+        d = sum(a != b for a, b in zip(claim_ref, ref))
+        if d <= 2:
+            return ref, d
+    return None
+
 
 def _tok_score(a: str, b: str) -> float:
     if a == b:
@@ -695,6 +702,10 @@ def _no_candidate_out(c: _Claim, ctx: _Ctx, search_notes: List[str], excl: Dict[
                        f"{' that is compatible with the claim' if excl else ''}.")
     if excl.get("ref"):
         reasons.append(f"{excl['ref']} credit(s) with the same amount and time carry a different reference.")
+    for row_id, ref, d in excl.get("near", []):
+        reasons.append(
+            f"Statement row {row_id} has the same amount and date, but its reference {ref} differs from the claimed "
+            f"{c.ref} in {d} digit(s). This may be a misread or a wrong reference; ask the payer for the UTR from their bank app.")
     for nm in excl.get("names", []):
         reasons.append(f"A credit with the same amount and time exists, but the statement name '{nm}' differs from the claimed payer.")
     if c.status_shown in ("failed", "fail", "failure"):
@@ -888,6 +899,9 @@ def match_claims(
                 found.append(e)
             elif why == "ref":
                 ex["ref"] = ex.get("ref", 0) + 1
+                near = _near_ref(c.ref, r)
+                if near:
+                    ex.setdefault("near", []).append((r.row_id, near[0], near[1]))
             elif why and why.startswith("name:"):
                 ex.setdefault("names", []).append(why[5:])
         ex_names = sorted(set(ex.get("names", [])))

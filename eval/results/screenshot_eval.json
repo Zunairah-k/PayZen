@@ -1,0 +1,102 @@
+[
+  {
+    "condition": "clean",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  },
+  {
+    "condition": "recompressed",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  },
+  {
+    "condition": "resized",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  },
+  {
+    "condition": "photographed",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  }
+]
