@@ -178,6 +178,7 @@ def _run(table: RawTable, llm_policy, llm_client, llm_model, mapping_override) -
         sheet=table.sheet, header_line=header.line, header_synthesized=header.synthesized, columns=list(names),
     )
     report.warnings.extend(table.warnings)
+    report.sample_rows = [list(r) for _, r in data_rows[:5]]
 
     header_norm = tuple(tuple(header_tokens(h)) for h in names)
     # rows used to GUESS the layout must not include repeated header rows (page breaks)
@@ -310,6 +311,9 @@ def _assemble(table: RawTable, header, report: ParseReport, best: _Candidate) ->
     if parsed.lost:
         warnings.append(f"{len(parsed.lost)} rows that looked like transactions could not be read "
                         f"(first: line {parsed.lost[0][0]}, {parsed.lost[0][1]}).")
+    if parsed.lost and any("vision model" in w for w in table.warnings):
+        warnings.append("A row's date was missing in the picture, which often means the date column is shifted "
+                        "by one row. Check every date.")
     credit_refs = Counter(r.extracted_reference for r in rows if r.extracted_reference and r.credit)
     dup = sum(1 for _, n in credit_refs.items() if n > 1)
     if dup:
@@ -321,7 +325,8 @@ def _assemble(table: RawTable, header, report: ParseReport, best: _Candidate) ->
                                                 and any(v is not None for v in (mapping.debit, mapping.credit, mapping.amount)))
     confidence = compute_parse_confidence(chain, parsed.parse_rate, parsed.date_order_status,
                                           header.synthesized, complete)
-    needs_confirmation = chain.status != "pass" or confidence < 0.8 or parsed.parse_rate < 0.95
+    needs_confirmation = (chain.status != "pass" or confidence < 0.8 or parsed.parse_rate < 0.95
+                          or any("vision model" in w for w in table.warnings))
 
     report.ok = True
     report.mapping_summary = mapping.describe()
