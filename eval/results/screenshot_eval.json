@@ -39,21 +39,16 @@
   {
     "condition": "recompressed",
     "images": 27,
-    "empty_reads": 1,
-    "amount_ok": 26,
-    "reference_ok": 26,
-    "timestamp_ok": 26,
-    "name_ok": 26,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
     "amount_wrong": 0,
     "reference_wrong": 0,
-    "verdict_correct": 24,
+    "verdict_correct": 25,
     "claims_judged": 27,
     "wrong_verdicts": [
-      {
-        "claim_id": "claim_001",
-        "expected": "Likely match",
-        "got": "Can't verify yet"
-      },
       {
         "claim_id": "claim_069",
         "expected": "Not found",
@@ -63,121 +58,6 @@
         "claim_id": "claim_077",
         "expected": "Duplicate",
         "got": "Contradicted"
-      }
-    ],
-    "fakes": 11,
-    "false_verified": [],
-    "genuine": 16,
-    "false_not_found": [],
-    "verdict_counts": {
-      "Can't verify yet": 3,
-      "Likely match": 7,
-      "Verified": 8,
-      "Contradicted": 4,
-      "Not found": 4,
-      "Duplicate": 1
-    }
-  },
-  {
-    "condition": "resized",
-    "images": 27,
-    "empty_reads": 3,
-    "amount_ok": 24,
-    "reference_ok": 24,
-    "timestamp_ok": 24,
-    "name_ok": 24,
-    "amount_wrong": 0,
-    "reference_wrong": 0,
-    "verdict_correct": 22,
-    "claims_judged": 27,
-    "wrong_verdicts": [
-      {
-        "claim_id": "claim_005",
-        "expected": "Likely match",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_039",
-        "expected": "Verified",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_069",
-        "expected": "Not found",
-        "got": "Likely match"
-      },
-      {
-        "claim_id": "claim_077",
-        "expected": "Duplicate",
-        "got": "Contradicted"
-      },
-      {
-        "claim_id": "claim_081",
-        "expected": "Duplicate",
-        "got": "Verified"
-      }
-    ],
-    "fakes": 11,
-    "false_verified": [
-      "claim_081"
-    ],
-    "genuine": 16,
-    "false_not_found": [],
-    "verdict_counts": {
-      "Likely match": 7,
-      "Can't verify yet": 4,
-      "Verified": 8,
-      "Contradicted": 4,
-      "Not found": 4
-    }
-  },
-  {
-    "condition": "photographed",
-    "images": 27,
-    "empty_reads": 6,
-    "amount_ok": 21,
-    "reference_ok": 21,
-    "timestamp_ok": 21,
-    "name_ok": 21,
-    "amount_wrong": 0,
-    "reference_wrong": 0,
-    "verdict_correct": 20,
-    "claims_judged": 27,
-    "wrong_verdicts": [
-      {
-        "claim_id": "claim_025",
-        "expected": "Verified",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_069",
-        "expected": "Not found",
-        "got": "Likely match"
-      },
-      {
-        "claim_id": "claim_077",
-        "expected": "Duplicate",
-        "got": "Contradicted"
-      },
-      {
-        "claim_id": "claim_081",
-        "expected": "Duplicate",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_085",
-        "expected": "Not found",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_089",
-        "expected": "Not found",
-        "got": "Can't verify yet"
-      },
-      {
-        "claim_id": "claim_093",
-        "expected": "Not found",
-        "got": "Can't verify yet"
       }
     ],
     "fakes": 11,
@@ -186,10 +66,85 @@
     "false_not_found": [],
     "verdict_counts": {
       "Likely match": 8,
-      "Verified": 7,
-      "Can't verify yet": 7,
+      "Verified": 8,
+      "Can't verify yet": 2,
       "Contradicted": 4,
-      "Not found": 1
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  },
+  {
+    "condition": "resized",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "wrong_verdicts": [
+      {
+        "claim_id": "claim_069",
+        "expected": "Not found",
+        "got": "Likely match"
+      },
+      {
+        "claim_id": "claim_077",
+        "expected": "Duplicate",
+        "got": "Contradicted"
+      }
+    ],
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
+    }
+  },
+  {
+    "condition": "photographed",
+    "images": 27,
+    "empty_reads": 0,
+    "amount_ok": 27,
+    "reference_ok": 27,
+    "timestamp_ok": 27,
+    "name_ok": 27,
+    "amount_wrong": 0,
+    "reference_wrong": 0,
+    "verdict_correct": 25,
+    "claims_judged": 27,
+    "wrong_verdicts": [
+      {
+        "claim_id": "claim_069",
+        "expected": "Not found",
+        "got": "Likely match"
+      },
+      {
+        "claim_id": "claim_077",
+        "expected": "Duplicate",
+        "got": "Contradicted"
+      }
+    ],
+    "fakes": 11,
+    "false_verified": [],
+    "genuine": 16,
+    "false_not_found": [],
+    "verdict_counts": {
+      "Likely match": 8,
+      "Verified": 8,
+      "Can't verify yet": 2,
+      "Contradicted": 4,
+      "Not found": 4,
+      "Duplicate": 1
     }
   }
 ]

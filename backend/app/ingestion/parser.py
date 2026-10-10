@@ -8,7 +8,10 @@ Row classes
 -----------
 transaction   has a parseable date AND at least one amount
 continuation  no date, no amounts, no balance, only narration text ->
-              stitched onto the previous transaction (wrapped narrations)
+              stitched onto the previous transaction (wrapped narrations), or,
+              when it starts like a new transaction (UPI/..., IMPS/...), held back
+              and attached to the NEXT dated row (banks that vertically centre the
+              date and amounts print the first narration lines ABOVE the date row)
 opening       a balance-only row labelled "Opening balance" / "B/F"
               -> used as the starting point of the balance chain
 skipped       everything else (junk header lines, footers, totals, page text,
@@ -44,6 +47,10 @@ _FOOTER_TEXT_RE = re.compile(
     r"(?i)(computer\s+generated|page\s+\d+\s+(of|/)\s+\d+|generated\s+on|this\s+is\s+a\s+system|"
     r"registered\s+office|toll\s+free|customer\s+care|disclaimer|please\s+examine)"
 )
+# a narration line that begins a NEW transaction (UPI/CR/..., IMPS-..., NEFT/...)
+_TXN_START_RE = re.compile(r"(?i)^(upi|imps|neft|rtgs|nach|ach|ecs|pos|atm|mmt|ift|inf)\s*[/\-]")
+# the last line some banks print under every transaction ("Chq: 129088354967")
+_TXN_END_RE = re.compile(r"(?i)^chq\.?\s*(no\.?)?\s*:")
 
 
 @dataclass
@@ -102,6 +109,8 @@ def parse_rows(
     header_norm = [tuple(header_tokens(h)) for h in (header_names or [])]
     footer_started = False
     last: Optional[ParsedRow] = None
+    last_closed = False  # the previous transaction's closing "Chq:" line has been seen
+    pending: List[str] = []  # narration lines printed ABOVE their date row
 
     for line, cells in data_rows:
         narr_parts = [clean_cell(_cell(cells, i)) for i in mapping.narration]
@@ -143,12 +152,27 @@ def parse_rows(
                 footer_started = True
                 out.skipped.append((line, "totals / footer row"))
                 continue
-            if narration and not has_amount and balance is None and last is not None:
-                last.narration = _join_wrapped(last.narration, narration)
-                if mapping.reference is not None and not last.ref_text:
-                    last.ref_text = clean_cell(_cell(cells, mapping.reference))
-                out.stitched += 1
-                continue
+            if narration and not has_amount and balance is None:
+                if _TXN_START_RE.match(narration):
+                    # a new transaction begins here; its date row comes a few lines later
+                    pending = [narration]
+                    out.stitched += 1
+                    continue
+                if pending:
+                    pending.append(narration)
+                    out.stitched += 1
+                    continue
+                if last is not None and not last_closed:
+                    last.narration = _join_wrapped(last.narration, narration)
+                    if mapping.reference is not None and not last.ref_text:
+                        last.ref_text = clean_cell(_cell(cells, mapping.reference))
+                    if _TXN_END_RE.match(narration):
+                        last_closed = True
+                    out.stitched += 1
+                    continue
+                if last is not None:
+                    out.skipped.append((line, "text between transactions"))
+                    continue
             if has_amount:
                 out.lost.append((line, f"amount present but date not understood: '{date_text[:30]}'"))
             else:
@@ -175,11 +199,19 @@ def parse_rows(
         if mapping.swap_direction:
             debit, credit = credit, debit
 
+        if pending:  # narration lines that were printed above this date row
+            prefix = ""
+            for p in pending:
+                prefix = _join_wrapped(prefix, p)
+            narration = _join_wrapped(prefix, narration)
+            pending = []
+
         last = ParsedRow(
             line=line, dt=dt_value, has_time=has_time, narration=narration, debit=debit, credit=credit,
             balance=balance, ref_text=clean_cell(_cell(cells, mapping.reference)),
         )
         out.rows.append(last)
+        last_closed = False
         footer_started = False
 
     return out
