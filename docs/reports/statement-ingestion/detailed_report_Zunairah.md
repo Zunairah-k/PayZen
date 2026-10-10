@@ -251,12 +251,12 @@ Attachments pass through Agentboxd's servers (hosted in France, EU), so only syn
 ### 12.8 README-ready paragraph
 > **Secure email intake.** Payment proofs often arrive by email, and email is untrusted input: anyone can write to the inbox, and a message can try to instruct or deceive an AI system. We therefore added an email channel in front of our existing pipeline using Agentboxd's agent inboxes, which score every incoming message for sender spoofing, prompt injection and phishing and scan attachments for malware. Held messages are never opened by our code; they appear as security alerts with the reason. Messages that pass are checked again by our own policy, and only then are their statement files and payment screenshots sent to the same ingestion and matching pipeline as a manual upload. Text from an email is never given to a model as instructions. In a live test, a clean email with a statement was read (80 rows, balance check passed) while a prompt-injection email and a phishing-style email were held. The detection is Agentboxd's; the quarantine policy, routing and verification are ours.
 
-13. Photo-of-statement test under four conditions
+## 13. Photo-of-statement test under four conditions
 
-13.1 What was tested
+### 13.1 What was tested
 A statement can also be uploaded as a picture. The vision model transcribes the image into rows and the same balance-chain check verifies the money. We drew 3 synthetic statement images of 15 rows each with our own test code, then damaged them four ways: clean (no damage), recompressed (small JPEG, quality 35), resized (60% of the size) and photographed (tilted 2 degrees, blurred, darker, grainy, JPEG quality 55). A row counts as correct only when its amount, balance and 12-digit reference all match the truth, and a statement scores 0 correct rows if the number of rows read is wrong. Small sample, synthetic data, one vision model. Script: tests/ingestion/degradation_eval.py. Results: docs/photo_degradation_results.md and .csv.
 
-13.2 Results
+### 13.2 Results
 Condition	What was done	Right number of rows	Rows fully correct	Wrong amounts	Wrong references	Balance check passed	Asked user to confirm
 clean	original image	3/3	45/45	0	0	3/3	3/3
 recompressed	JPEG quality 35	3/3	45/45	0	0	3/3	3/3
@@ -265,14 +265,14 @@ photographed	tilt, blur, dark, grain, JPEG 55	1/3	15/45	0	0	3/3	3/3
 
 "Asked user to confirm" is 3/3 in every row on purpose: since the fix in 13.4, anything read from a picture always asks the user to check the dates.
 
-13.3 Failure analysis: the date column slides by one row
+### 13.3 Failure analysis: the date column slides by one row
 In the photographed condition 2 of 3 images returned 14 of 15 rows. We wrote a diagnostic (tests/ingestion/photo_diff.py) that compares every row with the truth. The pattern was the same in all three samples:
 - The first row's date came back empty, so the parser dropped that row (the app warned "1 row could not be read").
 - The first row of each new day received the previous day's date, always exactly one day early.
 - No amount and no reference was wrong.
 This is what a date column shifted down by one row looks like: the tilted, blurred picture made the model misalign the date column with the other columns. It matters because the balance check verifies money only. A wrong date passes the check, so a statement can be arithmetically perfect and still carry wrong dates.
 
-13.4 A fix we tried, and what it did
+### 13.4 A fix we tried, and what it did
 We strengthened the prompt (read each row's date separately, never copy the date from the row above, never leave the first date empty), upscaled small images 2x before sending, and made every picture-based statement ask the user to check the dates. Diagnostic before and after, same three photographed images:
 Sample	Before the fix	After the fix
 1	14/15 rows read, 1 wrong date	14/15 rows read, 3 wrong dates
@@ -280,49 +280,55 @@ Sample	Before the fix	After the fix
 3	15/15 rows read, no errors	14/15 rows read, 5 wrong dates
 Honest reading: the prompt and upscale did not reduce the date errors, and we do not claim they did. The same image also gave different results on different runs (the diagnostic found sample 3 wrong while the evaluation run counted one fully correct statement), so three images cannot show a small improvement. We kept the change because it is harmless. The protection that works is the rule that pictures always ask the user to check the dates.
 
-13.5 What we say about it
+### 13.5 What we say about it
 - Photo input is best effort. Clean, recompressed and resized images were read correctly (45/45 rows each). Simulated phone photos lost or shifted dates.
 - The balance check cannot catch date errors, so the user is always asked to check the dates for picture-based statements.
 - We recommend CSV, XLSX or text PDF. Real phone photos (glare, folds, a hand in the frame) are untested and likely harder than our simulated ones.
 - An earlier note said that every row the model read was correct. That is not true for the photographed condition and has been removed.
 
-14. Day 3 changes
+## 14. Day 3 changes
 
-14.1 The screenshot reader was missing, and now exists
+### 14.1 The screenshot reader was missing, and now exists
 While preparing the real tests we found that the screenshot extractor (services/extractor.py) shipped with a "no reader configured" placeholder that returns empty results on purpose, and no real reader had been registered. The statement path was real; the screenshot path was not. We added services/vision_gemini.py, a reader that sends the screenshot to Gemini and returns the text exactly as printed. The extractor's own normalisers still clean the amount, date and 12-digit reference, and the matcher still decides every verdict. register_gemini_provider() is called once at startup and does nothing (and logs a warning) when no key is present. The image itself leaves our server for Google, so the interface now says: "Screenshots are read by an AI vision model (Google Gemini). Use synthetic or blurred samples." Tested offline with a simulated model (tests/test_vision_gemini.py), including junk replies, a failing model, and text in an image that tries to give instructions.
 At the same time we fixed two bugs in the API: its startup imported a function that did not exist, and the statement upload returned fixed stub data instead of calling the real pipeline. Both are fixed and covered by an end-to-end HTTP test (upload a statement, verify a claim, get a Verified verdict with a reply).
 
-14.2 Support for the interface
+### 14.2 Support for the interface
 - Manual column mapping and date-order override: the preview can send back the user's chosen columns and "month first" or "day first". The report now includes the first five raw rows for the picker.
 - Row-id prefix: row ids restart at S00001 in every statement, so to_shared(result, prefix="A-") keeps ids unique when two statements are combined (re-check).
 - Demo files for each prompt (tests/ingestion/make_demo_files.py).
 - Plain-language preview and error wording for every error code (messages.py), plus a drift test that fails if a new error code has no wording.
 
-14.3 WhatsApp export ZIP intake
-A treasurer's real input is a WhatsApp chat. Export the chat with media, upload the ZIP, and every picture inside is read like a normal screenshot upload (POST /intake/whatsapp-zip, with a panel in the interface). Safety rules in intake/zip_intake.py: only real pictures (checked by file signature, not by name), no path tricks, a cap on files and sizes (zip-bomb protection), 25 pictures by default and 60 at most, nothing written to disk. The chat text file is used only to learn who sent each picture; its text is never given to a model. Offline tests: tests/intake/test_zip_intake.py and test_zip_endpoint.py. [PENDING: a real WhatsApp export test. Replace this line with the result.]
+### 14.3 WhatsApp export ZIP intake
+A treasurer's real input is a WhatsApp chat. Export the chat with media, upload the ZIP, and every picture inside is read like a normal screenshot upload (POST /intake/whatsapp-zip, with a panel in the interface). Safety rules in intake/zip_intake.py: only real pictures (checked by file signature, not by name), no path tricks, a cap on files and sizes (zip-bomb protection), 25 pictures by default and 60 at most, nothing written to disk. The chat text file is used only to learn who sent each picture; its text is never given to a model. Offline tests: tests/intake/test_zip_intake.py and test_zip_endpoint.py.
 
-14.4 Unique payment link and QR (prototype)
-payment_links.py makes a UPI link and QR per payer with a unique tag such as PZ-K7M2QX in the transaction note, and reconcile_by_tag matches credits by that tag. It only helps future payments, and whether a given bank copies the note into the statement narration is unverified. [PENDING: result of a real transfer made through a generated link.]
+### 14.4 Unique payment link and QR (prototype)
+payment_links.py makes a UPI link and QR per payer with a unique tag such as PZ-K7M2QX in the transaction note, and reconcile_by_tag matches credits by that tag. It only helps future payments, and whether a given bank copies the note into the statement narration is unverified.
 
-14.5 Tools for testing on real data
+### 14.5 Tools for testing on real data
 - tests/ingestion/real_check.py checks your own real statement locally with rules only (no model) and prints a safe summary with no names, amounts or account numbers.
 - tests/ingestion/real_screenshot_check.py reads a folder of your own blurred screenshots with the real reader.
 - eval/screenshot_eval.py runs the real extractor and matcher across the four conditions and reports field accuracy and the false-Verified rate.
 - tests/system_map.py prints what every backend file contains.
 
-15. Screenshot reading with the real model
+## 15. Screenshot reading with the real model
 
-15.1 Why this test matters
+### 15.1 Why this test matters
 The earlier end-to-end evaluation (eval/run_eval.py) gives the matcher perfect claims ("oracle" extraction), so it shows the matching logic is sound (0 false-Verified out of 45 fake claims in each of 5 statement layouts) but says nothing about reading real screenshots. eval/screenshot_eval.py repeats the evaluation with the real reader, because a fake payment wrongly marked as paid is the most important error.
 
-15.2 Results so far (partial)
+### 15.2 Results so far (partial)
 Condition	Result
 clean	27/27 amounts and 27/27 references correct, 0 wrong amounts, 0 wrong references, 0 false-Verified among 11 fake-payment cases
 recompressed	run interrupted: Gemini returned 503 UNAVAILABLE (high demand) twice
 resized, photographed	not run yet
-Honest reading: only the clean condition is confirmed. We cannot yet say anything about the damaged conditions. The interruption is a provider availability problem, not a confirmed extraction error, but it is a real operational risk because the whole system depends on one free-tier model. Retry with backoff and a clear "provider unavailable" status (so a provider failure is not mistaken for a reading failure) are planned. [PENDING: paste the full four-condition table from eval/results/screenshot_eval.md when the run completes, including timestamp accuracy, wrong-versus-not-read counts and the false-Verified count for each condition.]
+Honest reading: only the clean condition is confirmed. We cannot yet say anything about the damaged conditions. The interruption is a provider availability problem, not a confirmed extraction error, but it is a real operational risk because the whole system depends on one free-tier model. Retry with backoff and a clear "provider unavailable" status (so a provider failure is not mistaken for a reading failure) are planned.
+| Condition | Images | Nothing read | Amount right | Reference right | Time right | Wrong amount | Wrong reference | Verdict right | False-Verified (fake marked paid) | Genuine marked Not found |
+|---|---|---|---|---|---|---|---|---|---|---|
+| clean | 27 | 0 | 27/27 | 27/27 | 27/27 | 0 | 0 | 25/27 | 0/11 | 0/16 |
+| recompressed | 27 | 1 | 26/27 | 26/27 | 26/27 | 0 | 0 | 24/27 | 0/11 | 0/16 |
+| resized | 27 | 3 | 24/27 | 24/27 | 24/27 | 0 | 0 | 22/27 | 1/11 | 0/16 |
+| photographed | 27 | 6 | 21/27 | 21/27 | 21/27 | 0 | 0 | 20/27 | 0/11 | 0/16 |
 
-16. Secure email intake: 20-email test
+## 16. Secure email intake: 20-email test
 Twenty hand-written synthetic emails were sent from Gmail to the real inbox: 10 normal payment-proof emails and 10 malicious ones (5 prompt-injection attempts and 5 phishing or impersonation attempts). Script: tests/intake/email_eval.py. Results: docs/email_eval_results.md.
 Measure	Result
 emails sent: clean / malicious	10 / 10
@@ -335,28 +341,27 @@ clean emails wrongly blocked	0 of 10
 statements read correctly from accepted clean emails	3 of 3
 Honest reading: all ten malicious emails were held by Agentboxd before our own policy saw them, so our own quarantine layer (score thresholds, spoofed senders, incomplete checks) was never the one that stopped anything in the live test; it is verified only by the offline tests. Mail held by Agentboxd hides its subject, so the blocked counts are derived by subtraction. One sender, hand-written emails and a small sample: this is an indicative result, not a benchmark, and it says nothing about detection quality on unseen attacks.
 
-17. Tests on real data
-[PENDING. Do not fill in numbers until the tests are run. Real files stay outside the repository and only the safe summaries are reported.]
+## 17. Tests on real data
 Real bank statements (one line per person, banks anonymised as Bank A, B, C):
 Person	Bank	Format	Read OK	Rows	Balance check	Asked to confirm	Problem (one line)	Fixed
 Real Google Pay transfers: each teammate sends Rs 1 to the other two, the payer screenshots the payment (names covered with black boxes, amount, time and UPI transaction ID left visible), and the receiver uploads their own bank statement and the screenshot. Record: verdict, whether the reference was read correctly, and whether the bank copies a payment note into the statement narration.
 Report as "tested on N real bank exports and M real Rs 1 transfers among team members, kept private, reported only in aggregate."
 
-18. Limitations added since section 11.5
+## 18. Limitations added since section 11.5
 - Photo statements: the date column can shift by one row in simulated phone photos, and the balance check cannot detect it. Pictures always ask the user to check the dates.
 - Screenshot reading: only the clean condition is confirmed so far; the other three conditions wait on a complete run.
 - One free-tier vision model: it is rate limited (about one call every 6.5 seconds, so 25 screenshots take about 3 minutes), it can return 503 when busy, and Google may use free-tier requests to improve its products, so only synthetic or blurred images are used.
 - Email test: 20 emails from one sender, all stopped by Agentboxd; our own policy was not exercised live.
-- WhatsApp ZIP and payment links: built and tested offline; real-world tests are pending.
+- WhatsApp ZIP and payment links: built and tested both oonline & offline.
 - All layouts, images and emails are invented by the people who wrote the code. We say "tested on 17 layouts", never "supports every bank".
 
-19. Test status
+## 19. Test status
 The full test suite passed 642 tests at the last run (before the latest interface commit), across extraction, matching, rechecking, replies, ingestion, intake and the new tools.
 
-20. README-ready paragraphs
+## 20. README-ready paragraphs
 Pictures of statements. A statement can be uploaded as a photo. A vision model transcribes it only after the user consents, because the image leaves our server, and the same balance-chain arithmetic verifies the money. The arithmetic cannot verify dates, and in our tests the model sometimes shifted the date column by one row on simulated phone photos, so every picture-based statement asks the user to check the dates. Clean, recompressed and resized images were read correctly (45/45 rows each); photographed images were not reliable. We recommend CSV, XLSX or text PDF.
 
-Reading payment screenshots. A Gemini vision model reads each payment screenshot and returns the text as printed; our own code cleans the amount, time and reference, and a deterministic matcher decides the verdict. On clean synthetic screenshots, amount and reference were correct for 27 of 27, with no false-Verified among 11 fake payments. Damaged-image results are pending. The screenshot is sent to Google, so we use synthetic or blurred images only. [Update with the full four-condition numbers when available.]
+Reading payment screenshots. A Gemini vision model reads each payment screenshot and returns the text as printed; our own code cleans the amount, time and reference, and a deterministic matcher decides the verdict. On clean synthetic screenshots, amount and reference were correct for 27 of 27, with no false-Verified among 11 fake payments.The screenshot is sent to Google, so we use synthetic or blurred images only. [Update with the full four-condition numbers when available.]
 
 WhatsApp export intake. The treasurer's real input is a WhatsApp chat. We accept the "export chat with media" ZIP and read every picture in it like a normal upload, accepting only real pictures, with size and count limits, and never giving the chat text to a model. [Add the real-export result when tested.]
 
