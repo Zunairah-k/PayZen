@@ -170,7 +170,7 @@ Setup: `AGENTBOXD_API_KEY` (see [Setup](#setup-and-run)).
 | **Statement reader:** 17 layouts + 2 stress layouts (Indian grouping, Dr/Cr, signed and inverted amounts, newest-first, junk headers, wrapped narrations, merged cells, no header, no balance column, multi-page and password PDFs) | 17/17 and 2/2 match ground truth on every date, amount, balance and reference; balance check passed on 16 (one layout has no balance column) | [`docs/evaluation/ingestion_test_report.md`](docs/evaluation/ingestion_test_report.md) |
 | **Ablation:** column-mapping model off vs on | Identical, 17/17 both ways: the model is a safety net, not the source of accuracy | [`docs/evaluation/ablation_results.md`](docs/evaluation/ablation_results.md) |
 | **Photo of a statement:** 3 images × 4 conditions | Clean, recompressed, resized: 45/45 rows. Simulated phone photo: 15/45 (dropped or date-shifted row) | [`docs/evaluation/photo_degradation_results.md`](docs/evaluation/photo_degradation_results.md) |
-| **Email intake:** 10 clean + 10 malicious | **10/10 malicious stopped**, 0/10 clean blocked, 3/3 statements read | [`docs/evaluation/email_eval_results.md`](docs/evaluation/email_eval_results.mdemail_eval_results.md) |
+| **Email intake:** 10 clean + 10 malicious | **10/10 malicious stopped**, 0/10 clean blocked, 3/3 statements read | [`docs/evaluation/email_eval_results.md`](docs/evaluation/email_eval_results.md) |
 | **Automated tests** | **642 passed** | `python -m pytest tests -q` |
 
 ---
