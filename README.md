@@ -16,6 +16,8 @@ ForgeHacks Online 2026 · Track: **AI + Cybersecurity** · Team: Zunairah · Ali
 
 A payment screenshot is not proof of payment. It can be edited, come from a fake payment app, be reused by several people, or describe a payment that never arrived. The reliable proof is the **receiver's own bank or UPI statement**, but checking hundreds of screenshots against it by hand is slow and error-prone. A wrong call either accepts money that never came or wrongly accuses someone who paid.
 
+**Why it matters:** collecting money by UPI screenshot is how small organisations and sellers actually work, and they have no fraud team. PayZen gives them a check that is fast, explained and fair: the people who paid are not accused, and the people who did not are not waved through.
+
 **Who it's for:** fest and club treasurers, housing societies, donation, tuition and trip collectors, and WhatsApp or Instagram sellers who collect through plain UPI.
 
 **How it answers the track prompt:**
@@ -53,7 +55,7 @@ Field-by-field behaviour: [ `docs/API_INTEGRATION.md`](docs/API_INTEGRATION.md)
 
 ## Proven on real data
 
-Most labelled evaluation uses synthetic data locally during the build, because that is the only way to seed dozens of known fakes. But a tool that reads bank statements should be proven on the real thing, so before release the team ran PayZen locally on a **real bank statement** and a **real UPI payment**. Nothing from these tests is stored, committed or published.
+Most of our labelled evaluation uses synthetic data, because that is the only way to seed dozens of known fakes without exposing anyone's records. But a tool that reads bank statements should be proven on the real thing, so before release the team ran PayZen locally on a **real bank statement** and a **real UPI payment**. Nothing from these tests is stored, committed or published.
 
 | Test | Input | Result |
 |---|---|---|
@@ -104,7 +106,7 @@ Reads CSV, XLSX, pasted text, text PDF (multi-page, repeated headers, password) 
 A Gemini vision model returns the text as printed. Deterministic normalizers clean the amount, time and 12-digit reference, attach a confidence per field and compute an image fingerprint. Weak or ambiguous fields are left empty, never guessed.
 
 ### 3. Matcher
-Theres no AI here on purpose. Evidence ladder, strongest first:
+Theres no AI here, on purpose. Evidence ladder, strongest first:
 
 | Tier | Evidence | Verdict |
 |---|---|---|
@@ -126,7 +128,7 @@ Rules that apply to the whole ladder:
 Full rules and confidence formulas: [`docs/TECHNICAL_REFERENCE.md`](docs/TECHNICAL_REFERENCE.md).
 
 ### 4. Replies, re-check and edit hint
-Replies are deterministic and evidence-only, in three tones and three languages, with user text sanitised and tested to contain no accusatory wording. Re-check re-runs *Can't verify yet* claims through the same matcher against a newer statement. The edit hint (image fingerprints and metadata) is a weak note capped at 0.70 and cannot change a verdict.
+Replies are deterministic and evidence-only, in three tones (English), with sanitised user text and no accusatory wording. The interface's payer messages come in English, Hindi and Telugu, with user text sanitised and tested to contain no accusatory wording. Re-check re-runs *Can't verify yet* claims through the same matcher against a newer statement. The edit hint (image fingerprints and metadata) is a weak note capped at 0.70 and cannot change a verdict.
 
 | Uses AI | Deliberately does not |
 |---|---|
@@ -164,7 +166,7 @@ Setup: `AGENTBOXD_API_KEY` (see [Setup](#setup-and-run)).
 
 | What was tested | Result | Details |
 |---|---|---|
-| **Real bank PDF and real payment** | 87 rows read, balance chain held on all 87; real payment **Verified 97%**; fabricated payment **Not found** | -
+| **Real bank PDF and real payment** | 87 rows read, balance chain held on all 87; real payment **Verified 97%**; fabricated payment **Not found** | see above
 | **Matching rules:** 100 labelled claims (55 genuine, 45 seeded fakes), 5 statement layouts | Accuracy 0.95–0.96; **0/45 fakes Verified**; 0/55 genuine Not found; 5/5 delayed payments resolved by re-check | [`eval/results/results.md`](eval/results/results.md) |
 | **Real screenshot reading + matching** (Gemini), 27 claims × 4 conditions (clean, recompressed, resized, photographed) | Amount, reference and time right on **27/27** in every condition; verdict right 25/27; **0/11 fakes Verified**; 0/16 genuine Not found | [`eval/results/screenshot_eval.md`](eval/results/screenshot_eval.md)|
 | **Statement reader:** 17 layouts + 2 stress layouts (Indian grouping, Dr/Cr, signed and inverted amounts, newest-first, junk headers, wrapped narrations, merged cells, no header, no balance column, multi-page and password PDFs) | 17/17 and 2/2 match ground truth on every date, amount, balance and reference; balance check passed on 16 (one layout has no balance column) | [`docs/evaluation/ingestion_test_report.md`](docs/evaluation/ingestion_test_report.md) |
@@ -203,21 +205,17 @@ More: [`docs/PRIVACY_SECURITY.md`](docs/PRIVACY_SECURITY.md).
 ---
 
 ## Setup and run
-## Setup and run
 
 Requirements: Python 3.10+ and Node 18+.
 
 ```powershell
 # backend (http://localhost:8000)
-# backend (http://localhost:8000)
 python -m venv backend\venv
-backend\venv\Scripts\Activate.ps1
 backend\venv\Scripts\Activate.ps1
 pip install -r backend/requirements.txt
 cd backend
 uvicorn app.main:app --reload
 
-# frontend (http://localhost:5173)
 # frontend (http://localhost:5173)
 cd frontend
 npm install
@@ -287,7 +285,7 @@ PayZen has three layers that had to fit together exactly: **reading** (statement
 - **API:** the backend service and the shared data contracts the layers agree on.
 * **Synthetic data and evaluation:** 100 labelled claims, five statement layouts, generated screenshots, ground truth, and matching evaluation scripts.
 * **Web Interface:** landing page, three-door intake, CSV export, inline claim editing, follow-up list, printable report, and EN/HI/TE payer messages.
-* **Payment links and deployment:** UPI link and QR prototype, live frontend on Vercel and backend on Render.
+* **Payment link panel in the interface and deployment:** UPI link and QR prototype, live frontend on Vercel and backend on Render.
 * **Integration and testing:** API–UI integration, end-to-end real-data tests, cross-channel claim handling, and deployment fixes.
 
 
@@ -295,7 +293,7 @@ PayZen has three layers that had to fit together exactly: **reading** (statement
 * **Statement reader:** CSV, XLSX, pasted text, text and password-protected PDFs, and consent-based photo/scanned statement extraction.
 * **Balance-chain verification:** arithmetic-based column validation, automatic retries and repairs, and user confirmation for uncertain results.
 * **Secure email and WhatsApp intake:** Agentboxd integration, phishing and prompt-injection quarantine, attachment routing, and ZIP safety checks.
-* **Payment link and QR prototype:** payer-specific UPI links and QR codes with unique transaction tags.
+* **Payment link and QR generator (backend: unique tags, link and QR creation, reconcile by tag):** payer-specific UPI links and QR codes with unique transaction tags.
 * **Evaluations and integration:** 17-layout statement tests, model-on/off ablation, photo and real-bank-PDF tests, 20-email security evaluation, and API integration.
 
 
@@ -310,8 +308,5 @@ PayZen has three layers that had to fit together exactly: **reading** (statement
 ---
 **PayZen — Payment Proof Verifier**
 *Trust the transaction, not the screenshot.*
-
-
-That distinction is central to the project's cybersecurity and responsible-AI design.
 
  AI + Cybersecurity · ForgeHacks Online 2026 · Umaima · Zunairah · Alizah
