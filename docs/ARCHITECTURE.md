@@ -223,4 +223,4 @@ Everything is processed in memory; nothing is stored. Setup: [`deployment.md`](d
 
 Never produce a stronger verdict than the evidence supports. A false Verified is worse than a cautious Not found or Can't verify yet.
 
-Field-level contract: [`api-contract.md`](api-contract.md).
+Field-level contract: [`API_INTEGRATION.md`](API_INTEGRATION.md).
