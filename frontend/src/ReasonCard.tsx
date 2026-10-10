@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Claim, StatementMeta, StatementRow, Verdict } from "./types";
 import EditClaim from "./EditClaim";
+import { LANGS, buildReply, type Lang } from "./replies";
 
 function fmtDate(iso?: string | null) {
   if (!iso) return "";
@@ -131,7 +132,7 @@ const NEXT: Record<string, string> = {
 };
 
 export default function ReasonCard({
-  verdict, claim, row, meta, onEdit, onClose, labelOf,
+  verdict, claim, row, meta, onEdit, onClose, labelOf, lang = "en", onLang,
 }: {
   verdict: Verdict;
   claim?: Claim;
@@ -140,6 +141,8 @@ export default function ReasonCard({
   onEdit?: (c: Claim) => void;
   onClose: () => void;
   labelOf?: (claimId: string) => string;
+  lang?: Lang;
+  onLang?: (l: Lang) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLElement>(null);
@@ -148,6 +151,7 @@ export default function ReasonCard({
   const diffs = Object.entries(verdict.field_differences ?? {});
   const { kept, similar } = tidyReasons(verdict.reasons ?? [], labelOf);
   const signals = buildSignals(verdict.status, meta, claim, row);
+  const reply = buildReply(verdict, claim, lang);
 
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -155,7 +159,7 @@ export default function ReasonCard({
 
   async function copyReply() {
     try {
-      await navigator.clipboard.writeText(verdict.suggested_reply ?? "");
+      await navigator.clipboard.writeText(reply);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch { /* clipboard blocked */ }
@@ -238,12 +242,26 @@ export default function ReasonCard({
 
       {claim && onEdit && <EditClaim key={claim.claim_id} claim={claim} onSave={onEdit} />}
 
+      <h4>Suggested reply</h4>
+      {onLang && (
+        <div className="lang-row">
+          <span className="muted small">Message language</span>
+          <div className="lang-toggle" role="group" aria-label="Reply language">
+            {LANGS.map((l) => (
+              <button key={l.id} type="button" className={lang === l.id ? "is-on" : ""} onClick={() => onLang(l.id)}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <p className="reply">{reply}</p>
+      <button className="run" onClick={copyReply}>{copied ? "Copied ✓" : "Copy reply"}</button>
       {verdict.suggested_reply && (
-        <>
-          <h4>Suggested reply</h4>
-          <p className="reply">{verdict.suggested_reply}</p>
-          <button className="run" onClick={copyReply}>{copied ? "Copied ✓" : "Copy reply"}</button>
-        </>
+        <details className="matcher-note">
+          <summary>Matcher's own wording</summary>
+          <p className="muted small">{verdict.suggested_reply}</p>
+        </details>
       )}
     </aside>
   );

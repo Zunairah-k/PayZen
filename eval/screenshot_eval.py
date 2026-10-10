@@ -107,6 +107,7 @@ def run_condition(rows_gt, condition, rows, meta, provider=None) -> Dict[str, An
         "amount_ok": count("amount_ok"), "reference_ok": count("reference_ok"), "timestamp_ok": count("timestamp_ok"),
         "name_ok": count("name_ok"), "amount_wrong": count("amount_wrong"), "reference_wrong": count("reference_wrong"),
         "verdict_correct": sum(pred[c] == exp[c] for c in got), "claims_judged": len(got),
+        "wrong_verdicts": [{"claim_id": c, "expected": exp[c], "got": pred[c]} for c in got if pred[c] != exp[c]],
         "fakes": sum(1 for c in got if c in fake_ids),
         "false_verified": sorted(c for c in got if c in fake_ids and pred[c] == "Verified"),
         "genuine": sum(1 for c in got if c not in fake_ids),
@@ -136,6 +137,10 @@ def write_report(results: List[Dict[str, Any]], limit_note: str) -> Path:
     for r in results:
         if r["false_verified"]:
             lines.append(f"- {r['condition']}: false-Verified claim ids: {', '.join(r['false_verified'])}")
+    lines += ["", "Verdicts that did not match ground truth:", ""]
+    for r in results:
+        for w in r.get("wrong_verdicts", []):
+            lines.append(f"- {r['condition']}: {w['claim_id']} expected {w['expected']}, got {w['got']}")
     out = OUT / "screenshot_eval.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     return out

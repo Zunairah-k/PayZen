@@ -29,10 +29,12 @@ const VERDICTS: { name: string; color: string; text: string }[] = [
 // Numbers come from eval/results/results.md, docs/email_eval_results.md and docs/photo_degradation_results.md.
 // Update here if the evaluation is re-run.
 const TESTED = [
-  { big: "0 / 45", label: "seeded fakes marked Verified, on every one of 5 statement layouts" },
-  { big: "95-96%", label: "correct verdicts across 100 labelled claims" },
-  { big: "68 / 68", label: "statement rows read correctly on all 5 layouts, balance check passed" },
+  { big: "0 / 45", label: "seeded fakes marked Verified, on every one of 5 statement layouts (matching rules, simulated reading)" },
+  { big: "0 / 11", label: "fakes marked Verified when the AI read real screenshots, in each of 4 image conditions" },
+  { big: "27 / 27", label: "amounts, references and times read correctly, including resized and simulated-photo screenshots" },
+  { big: "17 / 17", label: "statement layouts read correctly; balance check passed on 16 (one has no balance column)" },
   { big: "10 / 10", label: "malicious emails stopped, with 0 of 10 normal emails blocked" },
+  { big: "642", label: "automated tests passing" },
 ];
 
 export default function LandingPage() {
@@ -82,10 +84,12 @@ export default function LandingPage() {
           <div className="lp-dark-copy">
             <h2 id="lp-tested">Tested, with the limits stated</h2>
             <p>
-              Results on synthetic data we generated, with the screenshot-reading step simulated so the matching
-              rules are measured on their own. Photographed statements are the weak spot: in our test only 1 of 3
-              tilted, blurred photos was read with the right number of rows, which is why every photo asks you to
-              check the dates.
+              Results on synthetic data we generated. The matching rules were measured on 100 labelled claims
+              with the screenshot-reading step simulated, and the real screenshot reader was measured on a
+              27-claim sample in four image conditions. We checked one real GPay ₹1 payment end to end against a
+              statement built to match it; we have not tested real bank exports. Photographed statements are the
+              weak spot: in our test only 1 of 3 tilted, blurred photos was read with the right number of rows,
+              which is why every photo asks you to check the dates.
             </p>
           </div>
           <dl className="lp-stats">

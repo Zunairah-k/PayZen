@@ -14,6 +14,9 @@ import WhatsAppPanel from "../components/WhatsAppPanel";
 import LinksPanel from "../components/LinksPanel";
 import IntakePanel from "../components/IntakePanel";
 import ReasonCard from "../ReasonCard";
+import FollowUpList from "../components/FollowUpList";
+import type { Lang } from "../replies";
+import { printReport } from "../printReport";
 import { exportReconciliation } from "../exportCsv";
 import {
   sampleClaims, sampleRows, sampleMeta, sampleVerdicts,
@@ -40,7 +43,7 @@ export default function VerifyPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSample, setIsSample] = useState(false);
-
+  const [lang, setLang] = useState<Lang>("en");
   // which door each extra claim came through
   const [tab, setTab] = useState<Tab>("upload");
   const [waIds, setWaIds] = useState<string[]>([]);
@@ -395,9 +398,17 @@ export default function VerifyPage() {
             </button>
             <button className="run secondary" onClick={loadSample}>Try sample data</button>
             {verdicts.length > 0 && (
-              <button className="run secondary" onClick={() => exportReconciliation(claims, verdicts)}>
-                Export CSV
-              </button>
+              <>
+                <button className="run secondary" onClick={() => exportReconciliation(claims, verdicts)}>
+                  Export CSV
+                </button>
+                <button
+                  className="run secondary"
+                  onClick={() => printReport(claims, verdicts, [...rows, ...newRows], meta, sourceOf)}
+                >
+                  Print report
+                </button>
+              </>
             )}
           </div>
 
@@ -477,6 +488,7 @@ export default function VerifyPage() {
                 sourceOf={sourceOf}
               />
             </div>
+            <FollowUpList claims={claims} verdicts={verdicts} lang={lang} onLang={setLang} />
           </section>
         )}
 
@@ -490,6 +502,8 @@ export default function VerifyPage() {
             onEdit={handleEdit}
             onClose={() => setSelectedId(null)}
             labelOf={labelOf}
+            lang={lang}
+            onLang={setLang}
           />
         )}
 

@@ -139,6 +139,23 @@
 .reason-card .sig-warn .sig-dot { background: #c77700; }
 .reason-card .sig-info .sig-dot { background: #8a86a6; }
 
+/* language toggle */
+.vp .lang-toggle { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(91,61,245,.08); border: 1px solid var(--line); margin: 4px 0 8px; }
+.vp .lang-toggle button { border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.vp .lang-toggle button.is-on { background: var(--violet); color: #fff; }
+
+/* follow-up list */
+.vp .fu { margin-top: 18px; }
+.vp .fu-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.vp .fu-head h2 { margin: 0 0 4px; font-size: 24px; letter-spacing: -0.02em; font-weight: 800; }
+.vp .fu-list { list-style: none; margin: 14px 0; padding: 0; display: grid; gap: 12px; }
+.vp .fu-item { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; background: #fff; }
+.vp .fu-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.vp .fu-text { margin: 0 0 10px; line-height: 1.55; }
+.vp .fu-optional { font-size: 12px; color: var(--muted); }
+.vp .matcher-note { margin-top: 10px; font-size: 13px; }
+.vp .lang-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
 @media (max-width: 640px) {
   .vp-card, .vp .lk, .vp .intake { padding: 18px; border-radius: 20px; }
   .vp-navlink { display: none; }
