@@ -25,7 +25,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "backend"))
+BACKEND = ROOT / "backend"
+sys.path.insert(0, str(BACKEND))
+
+from dotenv import load_dotenv
+load_dotenv(BACKEND / ".env", override=False)
 
 from app.models import Claim, StatementMeta, StatementRow  # noqa: E402
 from app.services.extractor import extract_claim_detailed  # noqa: E402

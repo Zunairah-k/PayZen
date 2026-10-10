@@ -443,20 +443,25 @@ class _GeminiClient:
         )
         return resp.text or ""
 
+
     def transcribe_image(self, image: bytes, mime: str, prompt: str, model: str) -> str:
         from google.genai import types
 
         self._throttle()
-        resp = self._client.models.generate_content(
-            model=model, contents=[types.Part.from_bytes(data=image, mime_type=mime), prompt],
-            config=types.GenerateContentConfig(
-                temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
-        )
+
         resp = _retry_busy(lambda: self._client.models.generate_content(
-            model=model, contents=[types.Part.from_bytes(data=image, mime_type=mime), prompt],
+            model=model,
+            contents=[
+                types.Part.from_bytes(data=image, mime_type=mime),
+                prompt,
+            ],
             config=types.GenerateContentConfig(
-                temperature=0, max_output_tokens=12000, response_mime_type="application/json"),
+                temperature=0,
+                max_output_tokens=12000,
+                response_mime_type="application/json",
+            ),
         ))
+
         return resp.text or ""
 
 
